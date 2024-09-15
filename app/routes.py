@@ -67,10 +67,11 @@ from sqlalchemy import func
 
 import pandas as pd
 
+
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     now = datetime.now(timezone.utc)
-    start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=1)
+    start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=12)
     end_time = start_time + timedelta(hours=24)
 
     print(f"Current UTC time: {now}")
@@ -93,32 +94,18 @@ def aggregate_forecast():
         for forecast in forecasts:
             hour_key = forecast.timestamp.replace(minute=0, second=0, microsecond=0)
             if forecast.ghi is not None and substation.installed_solar_capacity is not None:
-                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
+                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity)
                 
                 provider = substation.forecast_location_rel.provider_name.lower()
-                if provider == 'solcast':
-                    # Solcast provides 30-minute data, so we'll average it
-                    hourly_data[hour_key]['sum'] += estimated_mw/2
-                    hourly_data[hour_key]['count'] += 1
-                elif provider in ['geoclipz', 'visualcrossing']:
-                    # Geoclipz and Visual Crossing provide hourly data
-                    hourly_data[hour_key]['sum'] = estimated_mw
-                    hourly_data[hour_key]['count'] = 1
-                else:
-                    print(f"Unknown provider: {provider} for substation {substation.id}")
+                hourly_data[hour_key]['sum'] += estimated_mw
+                hourly_data[hour_key]['count'] += 1
 
                 print(f"Substation {substation.id}, Hour: {hour_key}, Provider: {provider}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
             else:
                 print(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
 
-    # Calculate the average for each hour
-    final_hourly_data = {}
-    """     for hour, data in hourly_data.items():
-        if data['count'] > 0:
-            final_hourly_data[hour] = data['sum'] / data['count']
-        else:
-            final_hourly_data[hour] = 0.0 
-    """
+    # Calculate the final hourly values without resetting counts to zero
+    final_hourly_data = {hour: data['sum'] for hour, data in hourly_data.items()}
 
     print(f"Hourly data after processing: {final_hourly_data}")
 
