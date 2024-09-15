@@ -61,6 +61,60 @@ main = Blueprint('main', __name__)
 
 
 
+
+
+
+
+
+@main.route('/api/aggregate_forecast')
+def aggregate_forecast():
+    try:
+        now = datetime.now(timezone.utc)
+        start_time = now 
+        end_time = now + timedelta(hours=2)
+
+        forecasts = IrradiationForecast.query.filter(
+            IrradiationForecast.timestamp >= start_time,
+            IrradiationForecast.timestamp <= end_time
+        ).all()
+
+        current_app.logger.info(f"Found {len(forecasts)} forecasts")
+
+        aggregated_data = {}
+        for forecast in forecasts:
+            timestamp = forecast.timestamp.isoformat()
+            if timestamp not in aggregated_data:
+                aggregated_data[timestamp] = 0
+            
+            substation = GridSubstation.query.filter_by(forecast_location=forecast.forecast_location_id).first()
+            if substation:
+                estimated_mw = (forecast.ghi / 1000) * substation.installed_solar_capacity * 0.15
+                aggregated_data[timestamp] += estimated_mw
+            else:
+                current_app.logger.warning(f"No substation found for forecast_location_id: {forecast.forecast_location_id}")
+
+        current_app.logger.info(f"Aggregated data: {aggregated_data}")
+
+        sorted_data = sorted(aggregated_data.items())
+        return jsonify({
+            'timestamps': [item[0] for item in sorted_data],
+            'total_estimated_mw': [item[1] for item in sorted_data]
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error in aggregate_forecast: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+
+
+
+
+
+
+
+
+""" 
+
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     now = datetime.now(timezone.utc)
@@ -95,7 +149,7 @@ def aggregate_forecast():
         'total_estimated_mw': [item[1] for item in sorted_data]
     })
 
-
+ """
 
 @main.route('/admin/download/<entity_type>')
 @roles_required('admin')
