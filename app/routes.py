@@ -61,6 +61,37 @@ main = Blueprint('main', __name__)
 
 
 
+@main.route('/api/aggregate_forecast')
+def aggregate_forecast():
+    now = datetime.now(timezone.utc)
+    start_time = now - timedelta(hours=1)
+    end_time = now + timedelta(hours=2)
+
+    forecasts = IrradiationForecast.query.filter(
+        IrradiationForecast.timestamp >= start_time,
+        IrradiationForecast.timestamp <= end_time
+    ).all()
+
+    aggregated_data = {}
+    for forecast in forecasts:
+        timestamp = forecast.timestamp.isoformat()
+        if timestamp not in aggregated_data:
+            aggregated_data[timestamp] = 0
+        
+        substation = GridSubstation.query.filter_by(forecast_location=forecast.forecast_location_id).first()
+        if substation:
+            # Use the same calculation as in the individual forecast
+            estimated_mw = (forecast.ghi / 1000) * substation.installed_solar_capacity * 0.15
+            aggregated_data[timestamp] += estimated_mw
+
+    sorted_data = sorted(aggregated_data.items())
+    return jsonify({
+        'timestamps': [item[0] for item in sorted_data],
+        'total_estimated_mw': [item[1] for item in sorted_data]
+    })
+
+
+
 @main.route('/admin/download/<entity_type>')
 @roles_required('admin')
 def download_csv(entity_type):
