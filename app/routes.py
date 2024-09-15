@@ -71,12 +71,12 @@ def aggregate_forecast():
     start_time = now - timedelta(hours=1)
     end_time = now + timedelta(hours=24)
 
-    current_app.logger.info(f"Current UTC time: {now}")
-    current_app.logger.info(f"Fetching forecasts from {start_time} to {end_time}")
+    print(f"Current UTC time: {now}")
+    print(f"Fetching forecasts from {start_time} to {end_time}")
 
     # Query all substations
     substations = GridSubstation.query.all()
-    current_app.logger.info(f"Found {len(substations)} substations")
+    print(f"Found {len(substations)} substations")
 
     aggregated_data = {}
 
@@ -88,7 +88,7 @@ def aggregate_forecast():
             IrradiationForecast.timestamp <= end_time
         ).order_by(IrradiationForecast.timestamp).all()
 
-        current_app.logger.info(f"Found {len(forecasts)} forecasts for substation {substation.id}")
+        print(f"Found {len(forecasts)} forecasts for substation {substation.id}")
 
         for forecast in forecasts:
             timestamp = forecast.timestamp.isoformat()
@@ -98,9 +98,9 @@ def aggregate_forecast():
             if forecast.ghi is not None and substation.installed_solar_capacity is not None:
                 estimated_mw = (forecast.ghi / 1000) * float(substation.installed_solar_capacity) * 0.15
                 aggregated_data[timestamp] += estimated_mw
-                current_app.logger.info(f"Substation {substation.id}, Timestamp: {timestamp}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
+                print(f"Substation {substation.id}, Timestamp: {timestamp}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
             else:
-                current_app.logger.warning(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
+                print(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
 
     # Sort the data and prepare the response
     sorted_data = sorted(aggregated_data.items())
