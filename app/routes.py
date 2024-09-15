@@ -76,10 +76,12 @@ def aggregate_forecast():
     aggregated_data = {}
     for forecast in forecasts:
         timestamp = forecast.timestamp.isoformat()
-        if timestamp not in aggregated_data:
-            aggregated_data[timestamp] = 0
+        #if timestamp not in aggregated_data:
+        #    aggregated_data[timestamp] = 0
         
         substation = GridSubstation.query.filter_by(forecast_location=forecast.forecast_location_id).first()
+        print(f"substations: {substation}")      
+
         if substation:
             # Use the same calculation as in the individual forecast
             estimated_mw = (forecast.ghi / 1000) * float(substation.installed_solar_capacity) * 0.15
@@ -87,6 +89,7 @@ def aggregate_forecast():
     print(f"FFFFF Plantdfgdfgdfgdfg {estimated_mw}")
 
     sorted_data = sorted(aggregated_data.items())
+    print(f"FFFFF Plantdfgdfgdfgdfg {sorted_data}")
     return jsonify({
         'timestamps': [item[0] for item in sorted_data],
         'total_estimated_mw': [item[1] for item in sorted_data]
