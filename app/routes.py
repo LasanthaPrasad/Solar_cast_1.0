@@ -72,6 +72,7 @@ def aggregate_forecast():
         IrradiationForecast.timestamp <= end_time
     ).all()
 
+    print(f"FFFFF Plantdfgdfgdfgdfg {forecasts}")
     aggregated_data = {}
     for forecast in forecasts:
         timestamp = forecast.timestamp.isoformat()
@@ -83,6 +84,7 @@ def aggregate_forecast():
             # Use the same calculation as in the individual forecast
             estimated_mw = (forecast.ghi / 1000) * float(substation.installed_solar_capacity) * 0.15
             aggregated_data[timestamp] += estimated_mw
+    print(f"FFFFF Plantdfgdfgdfgdfg {estimated_mw}")
 
     sorted_data = sorted(aggregated_data.items())
     return jsonify({
