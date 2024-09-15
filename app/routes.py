@@ -61,44 +61,46 @@ main = Blueprint('main', __name__)
 
 
 
-
+from flask import jsonify, current_app
+from datetime import datetime, timedelta, timezone
+from sqlalchemy import func
 
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
-    # Get the current time in UTC
     now = datetime.now(timezone.utc)
-    current_app.logger.info(f"Current UTC time: {now}")
+    start_time = now - timedelta(hours=1)
+    end_time = now + timedelta(hours=24)
 
-    # Calculate the time range
-    start_time = now - timedelta(hours=10)
-    end_time = now + timedelta(hours=20)
+    current_app.logger.info(f"Current UTC time: {now}")
     current_app.logger.info(f"Fetching forecasts from {start_time} to {end_time}")
 
-    # Fetch forecasts
-    forecasts = IrradiationForecast.query.filter(
-        IrradiationForecast.timestamp >= start_time,
-        IrradiationForecast.timestamp <= end_time
-    ).order_by(IrradiationForecast.timestamp).all()
-
-    current_app.logger.info(f"Found {len(forecasts)} forecasts")
-
-    # Log the timestamp range of the fetched forecasts
-    if forecasts:
-        current_app.logger.info(f"Forecast timestamp range: from {forecasts[0].timestamp} to {forecasts[-1].timestamp}")
+    # Query all substations
+    substations = GridSubstation.query.all()
+    current_app.logger.info(f"Found {len(substations)} substations")
 
     aggregated_data = {}
-    for forecast in forecasts:
-        timestamp = forecast.timestamp.isoformat()
-       # if timestamp not in aggregated_data:
-       #     aggregated_data[timestamp] = 0
-        
-        substation = GridSubstation.query.filter_by(forecast_location=forecast.forecast_location_id).first()
-        if substation and substation.installed_solar_capacity and forecast.ghi:
-            estimated_mw = (forecast.ghi / 1000) * float(substation.installed_solar_capacity) * 0.15
-            aggregated_data[timestamp] += estimated_mw
-            current_app.logger.info(f"Timestamp: {timestamp}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
-        else:
-            current_app.logger.warning(f"Invalid data for forecast_location_id: {forecast.forecast_location_id}, GHI: {forecast.ghi}, Substation capacity: {substation.installed_solar_capacity if substation else 'N/A'}")
+
+    for substation in substations:
+        # Get forecast data for this substation's location
+        forecasts = IrradiationForecast.query.filter(
+            IrradiationForecast.forecast_location_id == substation.forecast_location,
+            IrradiationForecast.timestamp >= start_time,
+            IrradiationForecast.timestamp <= end_time
+        ).order_by(IrradiationForecast.timestamp).all()
+
+        current_app.logger.info(f"Found {len(forecasts)} forecasts for substation {substation.id}")
+
+        for forecast in forecasts:
+            timestamp = forecast.timestamp.isoformat()
+            if timestamp not in aggregated_data:
+                aggregated_data[timestamp] = 0
+
+            if forecast.ghi is not None and substation.installed_solar_capacity is not None:
+                estimated_mw = (forecast.ghi / 1000) * float(substation.installed_solar_capacity) * 0.15
+                aggregated_data[timestamp] += estimated_mw
+                current_app.logger.info(f"Substation {substation.id}, Timestamp: {timestamp}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
+            else:
+                current_app.logger.warning(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
 
     # Sort the data and prepare the response
     sorted_data = sorted(aggregated_data.items())
