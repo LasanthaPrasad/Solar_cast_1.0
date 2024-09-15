@@ -89,8 +89,8 @@ def aggregate_forecast():
     aggregated_data = {}
     for forecast in forecasts:
         timestamp = forecast.timestamp.isoformat()
-        if timestamp not in aggregated_data:
-            aggregated_data[timestamp] = 0
+       # if timestamp not in aggregated_data:
+       #     aggregated_data[timestamp] = 0
         
         substation = GridSubstation.query.filter_by(forecast_location=forecast.forecast_location_id).first()
         if substation and substation.installed_solar_capacity and forecast.ghi:
