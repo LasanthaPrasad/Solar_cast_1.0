@@ -70,8 +70,8 @@ def aggregate_forecast():
     current_app.logger.info(f"Current UTC time: {now}")
 
     # Calculate the time range
-    start_time = now - timedelta(hours=1)
-    end_time = now + timedelta(hours=2)
+    start_time = now - timedelta(hours=10)
+    end_time = now + timedelta(hours=10)
     current_app.logger.info(f"Fetching forecasts from {start_time} to {end_time}")
 
     # Fetch forecasts
