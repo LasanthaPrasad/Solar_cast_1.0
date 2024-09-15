@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Edit Solar Plant</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.name.label }}
+        {{ form.name(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.latitude.label }}
+        {{ form.latitude(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.longitude.label }}
+        {{ form.longitude(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.grid_substation.label }}
+        {{ form.grid_substation(class="form-control", id="grid_substation") }}
+    </div>
+    <div class="form-group">
+        {{ form.feeder.label }}
+        {{ form.feeder(class="form-control", id="feeder") }}
+    </div>
+    <div class="form-group">
+        {{ form.forecast_location.label }}
+        {{ form.forecast_location(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.installed_capacity.label }}
+        {{ form.installed_capacity(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.panel_capacity.label }}
+        {{ form.panel_capacity(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.inverter_capacity.label }}
+        {{ form.inverter_capacity(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.plant_angle.label }}
+        {{ form.plant_angle(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.company.label }}
+        {{ form.company(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.api_status.label }}
+        {{ form.api_status(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.plant_efficiency.label }}
+        {{ form.plant_efficiency(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.coefficient_factor.label }}
+        {{ form.coefficient_factor(class="form-control") }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM content loaded');
+        var gridSubstationSelect = document.getElementById('grid_substation');
+        var feederSelect = document.getElementById('feeder');
+
+        function updateFeeders() {
+            var substationId = gridSubstationSelect.value;
+            console.log('Updating feeders for substation ID:', substationId);
+            
+            if (!substationId) {
+                feederSelect.innerHTML = '<option value="">Select a Grid Substation first</option>';
+                return;
+            }
+
+            feederSelect.innerHTML = '<option value="">Loading...</option>';
+            
+            fetch('/get_feeders/' + substationId)
+                .then(response => {
+                    console.log('Fetch response received:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Feeder data received:', data);
+                    feederSelect.innerHTML = '<option value="">Select a Feeder</option>';
+                    data.forEach(feeder => {
+                        var option = document.createElement('option');
+                        option.value = feeder.id;
+                        option.textContent = feeder.name;
+/*                         if (feeder.id == {{ plant.feeder }}) {
+                            option.selected = true;
+                        } */
+                        feederSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching feeders:', error);
+                    feederSelect.innerHTML = '<option value="">Error loading feeders</option>';
+                });
+        }
+
+        gridSubstationSelect.addEventListener('change', function(event) {
+            console.log('Grid substation changed:', event.target.value);
+            updateFeeders();
+        });
+
+        
+            // Initial call to set up feeder options if a grid substation is already selected
+        if (gridSubstationSelect.value) {
+            console.log('Initial grid substation value:', gridSubstationSelect.value);
+            updateFeeders();
+        }
+    });
+</script>
+{% endblock %}

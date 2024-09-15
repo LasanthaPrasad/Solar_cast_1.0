@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Create New Forecast Location</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.provider_name.label(class="form-label") }}
+            {{ form.provider_name(class="form-select") }}
+        </div>
+        <div class="mb-3">
+            {{ form.latitude.label(class="form-label") }}
+            {{ form.latitude(class="form-control", placeholder="Enter latitude") }}
+        </div>
+        <div class="mb-3">
+            {{ form.longitude.label(class="form-label") }}
+            {{ form.longitude(class="form-control", placeholder="Enter longitude") }}
+        </div>
+        <div class="mb-3">
+            {{ form.api_key.label(class="form-label") }}
+            {{ form.api_key(class="form-control", placeholder="Enter API key") }}
+        </div>
+        <button type="submit" class="btn btn-primary">Create and Fetch Forecast</button>
+    </form>
+</div>
+{% endblock %}

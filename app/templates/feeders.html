@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Feeders</h1>
+<a href="{{ url_for('main.create_feeder') }}" class="btn btn-primary mb-3">Create New Feeder</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Code</th>
+            <th>Grid Substation</th>
+            <th>Installed Solar Capacity</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for feeder in feeders %}
+        <tr>
+            <td>{{ feeder.id }}</td>
+            <td>{{ feeder.name }}</td>
+            <td>{{ feeder.code }}</td>
+            <td>
+                {% if feeder.grid_substation_rel %}
+                    {{ feeder.grid_substation_rel.name }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td>{{ feeder.installed_solar_capacity }}</td>
+            <td>{{ feeder.status }}</td>
+            <td>
+                <a href="{{ url_for('main.edit_feeder', id=feeder.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <form action="{{ url_for('main.delete_feeder', id=feeder.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

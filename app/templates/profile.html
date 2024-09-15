@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>User Profile</h1>
+<p>Email: {{ user.email }}</p>
+<p>Joined on: {{ user.confirmed_at.strftime('%Y-%m-%d') }}</p>
+<!-- Add more user details as needed -->
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Edit Grid Substation</h1>
+<form method="POST">
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ substation.name }}" required>
+    </div>
+    <div class="form-group">
+        <label for="code">Code</label>
+        <input type="text" class="form-control" id="code" name="code" value="{{ substation.code }}" required>
+    </div>
+    <div class="form-group">
+        <label for="latitude">Latitude</label>
+        <input type="number" step="any" class="form-control" id="latitude" name="latitude" value="{{ substation.latitude }}" required>
+    </div>
+    <div class="form-group">
+        <label for="longitude">Longitude</label>
+        <input type="number" step="any" class="form-control" id="longitude" name="longitude" value="{{ substation.longitude }}" required>
+    </div>
+
+    <div class="form-group">
+        <label for="forecast_location">Forecast Location</label>
+        <select name="forecast_location" id="forecast_location" class="form-control" required>
+            <option value="">Select a Forecast Location</option>
+            {% for location in forecast_locations %}
+                <option value="{{ location.id }}" {% if substation.forecast_location == location.id %}selected{% endif %}>
+                    {{ location.provider_name }} ({{ location.latitude }}, {{ location.longitude }})
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="installed_solar_capacity">Installed Solar Capacity (MW)</label>
+        <input type="number" step="0.01" class="form-control" id="installed_solar_capacity" name="installed_solar_capacity" value="{{ substation.installed_solar_capacity }}" required>
+    </div>
+    <div class="form-group">
+        <label for="api_status">API Status</label>
+        <select class="form-control" id="api_status" name="api_status" required>
+            <option value="enabled" {% if substation.api_status == 'enabled' %}selected{% endif %}>Enabled</option>
+            <option value="disabled" {% if substation.api_status == 'disabled' %}selected{% endif %}>Disabled</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="api_key">API Key</label>
+        <input type="text" class="form-control" id="api_key" value="{{ substation.api_key }}" readonly>
+    </div>
+    <button type="submit" class="btn btn-primary">Update Grid Substation</button>
+</form>
+<form action="{{ url_for('main.generate_grid_substation_api_key', id=substation.id) }}" method="post" class="mt-3">
+    <button type="submit" class="btn btn-secondary">Generate New API Key</button>
+</form>
+{% endblock %}

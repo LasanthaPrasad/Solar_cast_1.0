@@ -1,0 +1,14 @@
+Dear {{ user.email }},
+
+A password reset has been requested for your account.
+
+To reset your password, please click on the following link or copy and paste it into your browser:
+
+{{ reset_link }}
+
+This link will expire in {{ config.SECURITY_RESET_PASSWORD_WITHIN }}.
+
+If you did not request a password reset, please ignore this email.
+
+Best regards,
+Your Application Team

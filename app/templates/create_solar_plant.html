@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Create Solar Plant</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.name.label }}
+        {{ form.name(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.latitude.label }}
+        {{ form.latitude(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.longitude.label }}
+        {{ form.longitude(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.grid_substation.label }}
+        {{ form.grid_substation(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.feeder.label }}
+        {{ form.feeder(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.forecast_location.label }}
+        {{ form.forecast_location(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.installed_capacity.label }}
+        {{ form.installed_capacity(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.panel_capacity.label }}
+        {{ form.panel_capacity(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.inverter_capacity.label }}
+        {{ form.inverter_capacity(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.plant_angle.label }}
+        {{ form.plant_angle(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.company.label }}
+        {{ form.company(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.api_status.label }}
+        {{ form.api_status(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.plant_efficiency.label }}
+        {{ form.plant_efficiency(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.coefficient_factor.label }}
+        {{ form.coefficient_factor(class="form-control") }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var gridSubstationSelect = document.getElementById('grid_substation');
+        var feederSelect = document.getElementById('feeder');
+
+        function updateFeeders() {
+            var substationId = gridSubstationSelect.value;
+            feederSelect.innerHTML = '<option value="">Loading...</option>';
+            
+            fetch('/get_feeders/' + substationId)
+                .then(response => response.json())
+                .then(data => {
+                    feederSelect.innerHTML = '<option value="">Select a Feeder</option>';
+                    data.forEach(feeder => {
+                        var option = document.createElement('option');
+                        option.value = feeder.id;
+                        option.textContent = feeder.name;
+                        feederSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    feederSelect.innerHTML = '<option value="">Error loading feeders</option>';
+                });
+        }
+
+        gridSubstationSelect.addEventListener('change', updateFeeders);
+
+        // Initial load of feeders if a substation is already selected
+        if (gridSubstationSelect.value) {
+            updateFeeders();
+        }
+    });
+</script>
+{% endblock %}

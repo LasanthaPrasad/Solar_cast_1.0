@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>GeoClipz Dashboard</h1>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total Active Installed Capacity</h5>
+                <p class="card-text">{{ total_capacity|round(2) }} MW</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total Real-time MW</h5>
+                <p class="card-text">{{ total_mw|round(2) }} MW</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4" id="map" style="height: 800px;"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function initMap() {
+    const map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 7.8731, lng: 80.7718 },  // Center of Sri Lanka
+        zoom: 5,
+    });
+
+    const locations = [
+        {% if forecast_locations %}
+            {% for location in forecast_locations %}
+            {
+                position: { lat: {{ location.latitude }}, lng: {{ location.longitude }} },
+                title: "{{ location.provider_name }}",
+                content: "<h6>{{ location.provider_name }}</h6>" +
+                         "<p>Latitude: {{ location.latitude }}<br>" +
+                         "Longitude: {{ location.longitude }}<br>" +
+                         "GHI: {{ location.ghi|default('N/A') }}<br>" +
+                         "DNI: {{ location.dni|default('N/A') }}<br>" +
+                         "DHI: {{ location.dhi|default('N/A') }}</p>"
+            },
+            {% endfor %}
+        {% endif %}
+    ];
+
+    console.log("Number of locations:", locations.length);
+
+    const infoWindow = new google.maps.InfoWindow();
+
+    locations.forEach(location => {
+        const marker = new google.maps.Marker({
+            position: location.position,
+            map: map,
+            title: location.title
+        });
+
+        marker.addListener("click", () => {
+            infoWindow.close();
+            infoWindow.setContent(location.content);
+            infoWindow.open(map, marker);
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", initMap);
+</script>
+{% endblock %}

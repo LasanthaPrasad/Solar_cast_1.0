@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Edit Feeder</h1>
+<form method="POST">
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ feeder.name }}" required>
+    </div>
+    <div class="form-group">
+        <label for="code">Code</label>
+        <input type="text" class="form-control" id="code" name="code" value="{{ feeder.code }}" required>
+    </div>
+    <div class="form-group">
+        <label for="grid_substation">Grid Substation</label>
+        <select class="form-control" id="grid_substation" name="grid_substation" required>
+            {% for substation in substations %}
+            <option value="{{ substation.id }}" {% if feeder and feeder.grid_substation == substation.id %}selected{% endif %}>
+                {{ substation.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    
+    <div class="form-group">
+        <label for="installed_solar_capacity">Installed Solar Capacity</label>
+        <input type="number" step="any" class="form-control" id="installed_solar_capacity" name="installed_solar_capacity" value="{{ feeder.installed_solar_capacity }}" required>
+    </div>
+    <div class="form-group">
+        <label for="status">Status</label>
+        <select class="form-control" id="status" name="status" required>
+            <option value="active" {% if feeder.status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if feeder.status == 'inactive' %}selected{% endif %}>Inactive</option>
+            <option value="maintenance" {% if feeder.status == 'maintenance' %}selected{% endif %}>Maintenance</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+{% endblock %}

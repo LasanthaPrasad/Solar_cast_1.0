@@ -1,0 +1,46 @@
+
+
+{% extends "base.html" %}
+{% block content %}
+<h2>Manage Users</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Current Role</th>
+            <th>Change Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+        <tr>
+            <td>{{ user.email }}</td>
+            <td>{{ user.roles[0].name if user.roles else 'No Role' }}</td>
+            <td>
+                <form action="{{ url_for('main.change_user_role', user_id=user.id) }}" method="post">
+                    <select name="role" class="form-control">
+                        <option value="user" {% if user.roles and user.has_role('user') %}selected{% endif %}>User</option>
+                        <option value="moderator" {% if user.roles and user.has_role('moderator') %}selected{% endif %}>Moderator</option>
+                        <option value="admin" {% if user.roles and user.has_role('admin') %}selected{% endif %}>Admin</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary mt-2">Change Role</button>
+                </form>
+            </td>
+            <td>{{ 'Active' if user.active else 'Inactive' }}</td>
+            <td>
+                <form action="{{ url_for('main.toggle_user_status', user_id=user.id) }}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-{{ 'warning' if user.active else 'success' }}">
+                        {{ 'Disable' if user.active else 'Enable' }}
+                    </button>
+                </form>
+                <form action="{{ url_for('main.reset_user_password', user_id=user.id) }}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-info">Reset Password</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

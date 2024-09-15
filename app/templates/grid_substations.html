@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Grid Substations</h1>
+
+<a href="{{ url_for('main.create_grid_substation') }}" class="btn btn-primary mb-3">Create New Grid Substation</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Code</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Installed Solar Capacity</th>
+            <th>API Key</th>
+            <th>API Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for substation in substations %}
+        <tr>
+            <td>{{ substation.id }}</td>
+            <td>{{ substation.name }}</td>
+            <td>{{ substation.code }}</td>
+            <td>{{ substation.latitude }}</td>
+            <td>{{ substation.longitude }}</td>
+            <td>{{ substation.installed_solar_capacity }}</td>
+            <td>{{ substation.api_key }}</td>
+            <td>{{ substation.api_status }}</td>
+            <td>
+                <a href="{{ url_for('main.edit_grid_substation', id=substation.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <form action="{{ url_for('main.delete_grid_substation', id=substation.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this substation?');">Delete</button>
+                </form>
+                <form action="{{ url_for('main.generate_grid_substation_api_key', id=substation.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-info">New API Key</button>
+                </form>
+                <button onclick="showForecast({{ substation.id }}, '{{ substation.name }}')" class="btn btn-sm btn-primary">Show Forecast</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div id="map" style="height: 800px; width: 100%;"></div>
+
+<div class="modal fade" id="forecastModal" tabindex="-1" role="dialog" aria-labelledby="forecastModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="forecastModalLabel">Grid Substation Aggregate Generation Forecast </h6>
+
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="loadingSpinner" class="text-center" style="display: none;">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <div id="forecastChart" style="width:100%; height:400px;"></div>
+                <button id="downloadExcel" class="btn btn-success mt-3" style="display: none;">Download Excel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+<script>
+let currentForecastData = null;
+let map;
+let markers = [];
+let currentInfoWindow = null;
+
+
+function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 7.8731, lng: 80.7718 },  // Center of Sri Lanka
+        zoom: 8,
+    });
+
+    var substations = {{ substations_data|tojson }};
+    
+    substations.forEach(function(substation) {
+        var marker = new google.maps.Marker({
+            position: {lat: substation.latitude, lng: substation.longitude},
+            map: map,
+            title: substation.name
+        });
+
+        marker.addListener('click', function() {
+            showSubstationInfo(substation, marker);
+        });
+
+        markers.push(marker);
+    });
+}
+
+
+
+
+function showSubstationInfo(substation, marker) {
+    if (currentInfoWindow) {
+        currentInfoWindow.close();
+    }
+
+
+    var content = '<h5>' + substation.name + '</h5>' +
+              '<p>Code: ' + substation.code + '</p>' +
+              '<p>Latitude: ' + substation.latitude + '</p>' +
+              '<p>Longitude: ' + substation.longitude + '</p>' +
+              '<p>Installed Solar Capacity: ' + substation.installed_solar_capacity + ' MW</p>' +
+              '<button onclick="showForecast(' + substation.id + ', \'' + substation.name + '\')" class="btn btn-primary">Show Forecast</button>';
+
+    var infowindow = new google.maps.InfoWindow({
+        content: content
+    });
+
+    infowindow.open(map, marker);
+
+        // Set the current info window to the newly opened one
+    currentInfoWindow = infowindow;
+
+    // Add a click event listener to the map to close the info window when clicking elsewhere on the map
+    google.maps.event.addListenerOnce(map, 'click', function() {
+    infowindow.close();
+    currentInfoWindow = null;
+    });
+}
+
+
+function showForecast(substationId, substationName) {
+    $('#loadingSpinner').show();
+    $('#forecastModal').modal('show');
+    $('#downloadExcel').hide();
+
+    fetch(`/api/substation_forecast/${substationId}`)
+        .then(response => response.json())
+        .then(data => {
+            $('#loadingSpinner').hide();
+            currentForecastData = data;
+            
+            var trace = {
+                x: data.map(item => new Date(item.timestamp)),
+                y: data.map(item => item.estimated_mw),
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Estimated MW'
+            };
+
+            var layout = {
+                title: `Grid Substation Generation Forecast - ${substationName}`,
+                xaxis: {
+                    title: 'Time',
+                    tickformat: '%Y-%m-%d %H:%M'
+                },
+                yaxis: {title: 'Estimated MW'}
+            };
+
+            Plotly.newPlot('forecastChart', [trace], layout);
+            $('#downloadExcel').show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            $('#loadingSpinner').hide();
+            alert('An error occurred while fetching the forecast data.');
+        });
+}
+
+
+
+
+
+
+function downloadExcel() {
+    if (!currentForecastData) {
+        alert('No forecast data available to download.');
+        return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(currentForecastData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Forecast Data");
+    
+    const date = new Date();
+    const filename = `forecast_data_${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}_${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}.xlsx`;
+
+    XLSX.writeFile(workbook, filename);
+}
+
+// Add event listener for the download button
+document.getElementById('downloadExcel').addEventListener('click', downloadExcel);
+
+// Initialize the map when the page loads
+google.maps.event.addDomListener(window, 'load', initMap);
+</script>
+{% endblock %}
