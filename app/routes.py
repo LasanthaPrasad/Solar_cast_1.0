@@ -68,46 +68,40 @@ main = Blueprint('main', __name__)
 
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
-    try:
-        now = datetime.now()
-        start_time = now  + timedelta(hours=2)
-        end_time = now + timedelta(hours=4)
+    now = datetime.now(timezone.utc)
+    start_time = now - timedelta(hours=1)
+    end_time = now + timedelta(hours=2)
 
-        forecasts = IrradiationForecast.query.filter(
-            IrradiationForecast.timestamp >= start_time,
-            IrradiationForecast.timestamp <= end_time
-        ).all()
+    current_app.logger.info(f"Fetching forecasts from {start_time} to {end_time}")
 
-        print(f"Found {len(forecasts)} forecasts")
+    forecasts = IrradiationForecast.query.filter(
+        IrradiationForecast.timestamp >= start_time,
+        IrradiationForecast.timestamp <= end_time
+    ).all()
 
-        aggregated_data = {}
-        for forecast in forecasts:
-            timestamp = forecast.timestamp.isoformat()
-            if timestamp not in aggregated_data:
-                aggregated_data[timestamp] = 0
-            
-            substation = GridSubstation.query.filter_by(forecast_location=forecast.forecast_location_id).first()
-            print(f"Aggregated substation: {substation}")
+    current_app.logger.info(f"Found {len(forecasts)} forecasts")
 
-            if substation:
-                estimated_mw = (forecast.ghi / 1000) #* float(substation.installed_solar_capacity) * 0.15
-                aggregated_data[timestamp] += estimated_mw
-            else:
-                current_app.logger.warning(f"No substation found for forecast_location_id: {forecast.forecast_location_id}")
+    aggregated_data = {}
+    for forecast in forecasts:
+        timestamp = forecast.timestamp.isoformat()
+        if timestamp not in aggregated_data:
+            aggregated_data[timestamp] = 0
+        
+        substation = GridSubstation.query.filter_by(forecast_location=forecast.forecast_location_id).first()
+        if substation:
+            estimated_mw = (forecast.ghi / 1000) * float(substation.installed_solar_capacity) * 0.15
+            aggregated_data[timestamp] += estimated_mw
+            current_app.logger.info(f"Timestamp: {timestamp}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
+        else:
+            current_app.logger.warning(f"No substation found for forecast_location_id: {forecast.forecast_location_id}")
 
-        print(f"Aggregated data: {aggregated_data}")
+    current_app.logger.info(f"Aggregated data: {aggregated_data}")
 
-        sorted_data = sorted(aggregated_data.items())
-        return jsonify({
-            'timestamps': [item[0] for item in sorted_data],
-            'total_estimated_mw': [item[1] for item in sorted_data]
-        })
-    except Exception as e:
-        print(f"Error in aggregate_forecast: {str(e)}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
-
-
-
+    sorted_data = sorted(aggregated_data.items())
+    return jsonify({
+        'timestamps': [item[0] for item in sorted_data],
+        'total_estimated_mw': [item[1] for item in sorted_data]
+    })
 
 
 
