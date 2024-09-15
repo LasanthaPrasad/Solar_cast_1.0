@@ -95,15 +95,15 @@ def aggregate_forecast():
             hour_key = forecast.timestamp.replace(minute=0, second=0, microsecond=0)
             if forecast.ghi is not None and substation.installed_solar_capacity is not None:
                 estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
-                
+                if {provider} == 'solcast':
+                    estimated_mw= estimated_mw/2
+
                 provider = substation.forecast_location_rel.provider_name.lower()
                 hourly_data[hour_key]['sum'] += estimated_mw
                 hourly_data[hour_key]['count'] += 1
 
 
-                if {provider} == 'solcast':
-                    # For Solcast, we'll average the two 30-minute readings
-                    hourly_data[hour_key]['sum'] =  hourly_data[hour_key]['sum']/2
+
 
 
                 print(f"Substation {substation.id}, Hour: {hour_key}, Provider: {provider}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
