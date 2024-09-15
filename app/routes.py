@@ -70,15 +70,15 @@ main = Blueprint('main', __name__)
 def aggregate_forecast():
     try:
         now = datetime.now()
-        start_time = now 
-        end_time = now + timedelta(hours=2)
+        start_time = now  + timedelta(hours=2)
+        end_time = now + timedelta(hours=4)
 
         forecasts = IrradiationForecast.query.filter(
             IrradiationForecast.timestamp >= start_time,
             IrradiationForecast.timestamp <= end_time
         ).all()
 
-        current_app.logger.info(f"Found {len(forecasts)} forecasts")
+        print(f"Found {len(forecasts)} forecasts")
 
         aggregated_data = {}
         for forecast in forecasts:
