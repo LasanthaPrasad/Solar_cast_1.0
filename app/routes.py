@@ -63,7 +63,6 @@ main = Blueprint('main', __name__)
 
 
 
-
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     # Get the current time in UTC
