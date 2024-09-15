@@ -71,7 +71,7 @@ def aggregate_forecast():
 
     # Calculate the time range
     start_time = now - timedelta(hours=10)
-    end_time = now + timedelta(hours=10)
+    end_time = now + timedelta(hours=20)
     current_app.logger.info(f"Fetching forecasts from {start_time} to {end_time}")
 
     # Fetch forecasts
