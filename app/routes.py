@@ -115,6 +115,7 @@ def aggregate_forecast():
 
 
 
+
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     now = datetime.now(timezone.utc)
