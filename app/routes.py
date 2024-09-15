@@ -77,7 +77,7 @@ import pandas as pd
 def aggregate_forecast():
     now = datetime.now(timezone.utc)
     start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=1)
-    end_time = start_time + timedelta(hours=4)  # 4 hours of hourly data
+    end_time = start_time + timedelta(hours=24)  # 4 hours of hourly data
 
     print(f"Current UTC time: {now}")
     print(f"Fetching forecasts from {start_time} to {end_time}")
