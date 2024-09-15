@@ -65,6 +65,77 @@ from flask import jsonify, current_app
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import func
 
+import pandas as pd
+
+@main.route('/api/aggregate_forecast')
+def aggregate_forecast():
+    now = datetime.now(timezone.utc)
+    start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=1)
+    end_time = start_time + timedelta(hours=4)  # 4 hours of hourly data
+
+    current_app.logger.info(f"Current UTC time: {now}")
+    current_app.logger.info(f"Fetching forecasts from {start_time} to {end_time}")
+
+    substations = GridSubstation.query.all()
+    current_app.logger.info(f"Found {len(substations)} substations")
+
+    hourly_data = {start_time + timedelta(hours=i): 0 for i in range(5)}  # Initialize hourly slots
+
+    for substation in substations:
+        forecasts = IrradiationForecast.query.filter(
+            IrradiationForecast.forecast_location_id == substation.forecast_location,
+            IrradiationForecast.timestamp >= start_time,
+            IrradiationForecast.timestamp <= end_time
+        ).order_by(IrradiationForecast.timestamp).all()
+
+        current_app.logger.info(f"Found {len(forecasts)} forecasts for substation {substation.id}")
+
+        for forecast in forecasts:
+            hour_key = forecast.timestamp.replace(minute=0, second=0, microsecond=0)
+            if forecast.ghi is not None and substation.installed_solar_capacity is not None:
+                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
+                hourly_data[hour_key] += estimated_mw
+                current_app.logger.info(f"Substation {substation.id}, Hour: {hour_key}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
+            else:
+                current_app.logger.warning(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
+
+    # Convert to pandas Series for easy resampling and interpolation
+    s = pd.Series(hourly_data)
+    s = s.resample('15T').interpolate(method='cubic')  # Resample to 15-minute intervals and interpolate
+
+    result = {
+        'current_utc_time': now.isoformat(),
+        'timestamps': s.index.strftime('%Y-%m-%dT%H:%M:%S%z').tolist(),
+        'total_estimated_mw': s.tolist(),
+        'hourly_data': {k.isoformat(): v for k, v in hourly_data.items()}  # Include original hourly data
+    }
+
+    current_app.logger.info(f"Final result: {result}")
+    return jsonify(result)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""" 
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     now = datetime.now(timezone.utc)
@@ -112,6 +183,7 @@ def aggregate_forecast():
 
     current_app.logger.info(f"Final result: {result}")
     return jsonify(result)
+ """
 
 """ 
 
