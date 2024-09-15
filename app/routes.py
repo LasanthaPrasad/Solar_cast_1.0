@@ -125,6 +125,7 @@ def aggregate_forecast():
     for hour, data in hourly_data.items():
         if data['count'] > 0:
             final_hourly_data[hour] = data['sum'] / data['count']
+            final_hourly_data[hour] = 0.0
         else:
             final_hourly_data[hour] = 0.0
 
