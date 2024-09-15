@@ -69,7 +69,7 @@ main = Blueprint('main', __name__)
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     try:
-        now = datetime.now(timezone.utc)
+        now = datetime.now()
         start_time = now 
         end_time = now + timedelta(hours=2)
 
