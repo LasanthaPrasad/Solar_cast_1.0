@@ -81,7 +81,7 @@ def aggregate_forecast():
         substation = GridSubstation.query.filter_by(forecast_location=forecast.forecast_location_id).first()
         if substation:
             # Use the same calculation as in the individual forecast
-            estimated_mw = (forecast.ghi / 1000) * substation.installed_solar_capacity * 0.15
+            estimated_mw = (forecast.ghi / 1000) * float(substation.installed_solar_capacity) * 0.15
             aggregated_data[timestamp] += estimated_mw
 
     sorted_data = sorted(aggregated_data.items())
