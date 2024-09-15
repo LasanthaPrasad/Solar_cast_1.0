@@ -87,8 +87,10 @@ def aggregate_forecast():
                 aggregated_data[timestamp] = 0
             
             substation = GridSubstation.query.filter_by(forecast_location=forecast.forecast_location_id).first()
+            current_app.logger.info(f"Aggregated substation: {substation}")
+
             if substation:
-                estimated_mw = (forecast.ghi / 1000) * float(substation.installed_solar_capacity) * 0.15
+                estimated_mw = (forecast.ghi / 1000) #* float(substation.installed_solar_capacity) * 0.15
                 aggregated_data[timestamp] += estimated_mw
             else:
                 current_app.logger.warning(f"No substation found for forecast_location_id: {forecast.forecast_location_id}")
