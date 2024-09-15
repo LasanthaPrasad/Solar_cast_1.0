@@ -66,19 +66,25 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import func
 
 import pandas as pd
+
+
+
+
+
+
+
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     now = datetime.now(timezone.utc)
     start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=1)
     end_time = start_time + timedelta(hours=4)  # 4 hours of hourly data
 
-    current_app.logger.info(f"Current UTC time: {now}")
-    current_app.logger.info(f"Fetching forecasts from {start_time} to {end_time}")
+    print(f"Current UTC time: {now}")
+    print(f"Fetching forecasts from {start_time} to {end_time}")
 
     substations = GridSubstation.query.all()
-    current_app.logger.info(f"Found {len(substations)} substations")
+    print(f"Found {len(substations)} substations")
 
-    # Initialize hourly slots with 0.0 instead of 0
     hourly_data = {start_time + timedelta(hours=i): 0.0 for i in range(5)}
 
     for substation in substations:
@@ -88,21 +94,21 @@ def aggregate_forecast():
             IrradiationForecast.timestamp <= end_time
         ).order_by(IrradiationForecast.timestamp).all()
 
-        current_app.logger.info(f"Found {len(forecasts)} forecasts for substation {substation.id}")
+        print(f"Found {len(forecasts)} forecasts for substation {substation.id}")
 
         for forecast in forecasts:
             hour_key = forecast.timestamp.replace(minute=0, second=0, microsecond=0)
             if hour_key not in hourly_data:
-                current_app.logger.warning(f"Unexpected hour key: {hour_key}")
+                print(f"Unexpected hour key: {hour_key}")
                 hourly_data[hour_key] = 0.0
             if forecast.ghi is not None and substation.installed_solar_capacity is not None:
                 estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
                 hourly_data[hour_key] += estimated_mw
-                current_app.logger.info(f"Substation {substation.id}, Hour: {hour_key}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
+                print(f"Substation {substation.id}, Hour: {hour_key}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
             else:
-                current_app.logger.warning(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
+                print(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
 
-    current_app.logger.info(f"Hourly data before processing: {hourly_data}")
+    print(f"Hourly data before processing: {hourly_data}")
 
     # Convert to pandas Series for easy resampling and interpolation
     s = pd.Series(hourly_data)
@@ -115,9 +121,8 @@ def aggregate_forecast():
         'hourly_data': {k.isoformat(): v for k, v in hourly_data.items()}  # Include original hourly data
     }
 
-    current_app.logger.info(f"Final result: {result}")
+    print(f"Final result: {result}")
     return jsonify(result)
-
 
 
 
