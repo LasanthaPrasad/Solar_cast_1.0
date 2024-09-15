@@ -64,7 +64,7 @@ main = Blueprint('main', __name__)
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     now = datetime.now(timezone.utc)
-    start_time = now - timedelta(hours=1)
+    start_time = now
     end_time = now + timedelta(hours=2)
 
     forecasts = IrradiationForecast.query.filter(
