@@ -98,7 +98,7 @@ def aggregate_forecast():
                 provider = substation.forecast_location_rel.provider_name.lower()
                 if provider == 'solcast':
                     # Solcast provides 30-minute data, so we'll average it
-                    hourly_data[hour_key]['sum'] += estimated_mw
+                    hourly_data[hour_key]['sum'] += estimated_mw/2
                     hourly_data[hour_key]['count'] += 1
                 elif provider in ['geoclipz', 'visualcrossing']:
                     # Geoclipz and Visual Crossing provide hourly data
@@ -113,11 +113,12 @@ def aggregate_forecast():
 
     # Calculate the average for each hour
     final_hourly_data = {}
-    for hour, data in hourly_data.items():
+    """     for hour, data in hourly_data.items():
         if data['count'] > 0:
             final_hourly_data[hour] = data['sum'] / data['count']
         else:
-            final_hourly_data[hour] = 0.0
+            final_hourly_data[hour] = 0.0 
+    """
 
     print(f"Hourly data after processing: {final_hourly_data}")
 
