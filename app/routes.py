@@ -88,21 +88,25 @@ def aggregate_forecast():
             aggregated_data[timestamp] = 0
         
         substation = GridSubstation.query.filter_by(forecast_location=forecast.forecast_location_id).first()
-        if substation:
-            estimated_mw = (forecast.ghi / 1000) * float(substation.installed_solar_capacity) * 0.15
+        if substation and substation.installed_solar_capacity and forecast.ghi:
+            estimated_mw = (forecast.ghi / 1000) * substation.installed_solar_capacity * 0.15
             aggregated_data[timestamp] += estimated_mw
             current_app.logger.info(f"Timestamp: {timestamp}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
         else:
-            current_app.logger.warning(f"No substation found for forecast_location_id: {forecast.forecast_location_id}")
+            current_app.logger.warning(f"Invalid data for forecast_location_id: {forecast.forecast_location_id}, GHI: {forecast.ghi}, Substation capacity: {substation.installed_solar_capacity if substation else 'N/A'}")
 
     current_app.logger.info(f"Aggregated data: {aggregated_data}")
 
+    if all(value == 0 for value in aggregated_data.values()):
+        current_app.logger.warning("All aggregated values are zero")
+
     sorted_data = sorted(aggregated_data.items())
-    return jsonify({
+    result = {
         'timestamps': [item[0] for item in sorted_data],
         'total_estimated_mw': [item[1] for item in sorted_data]
-    })
-
+    }
+    current_app.logger.info(f"Final result: {result}")
+    return jsonify(result)
 
 
 
