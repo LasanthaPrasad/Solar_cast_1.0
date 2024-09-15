@@ -100,6 +100,12 @@ def aggregate_forecast():
                 hourly_data[hour_key]['sum'] += estimated_mw
                 hourly_data[hour_key]['count'] += 1
 
+
+                if {provider} == 'solcast':
+                    # For Solcast, we'll average the two 30-minute readings
+                    hourly_data[hour_key]['sum'] =  hourly_data[hour_key]['sum']/2
+
+
                 print(f"Substation {substation.id}, Hour: {hour_key}, Provider: {provider}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
             else:
                 print(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
