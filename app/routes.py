@@ -110,6 +110,7 @@ def aggregate_forecast():
 
     print(f"Hourly data before processing: {hourly_data}")
 
+
     # Convert to pandas Series for easy resampling and interpolation
     s = pd.Series(hourly_data)
     s = s.resample('15T').interpolate(method='cubic')  # Resample to 15-minute intervals and interpolate
