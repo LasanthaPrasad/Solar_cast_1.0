@@ -96,7 +96,7 @@ def aggregate_forecast():
                 current_app.logger.warning(f"Unexpected hour key: {hour_key}")
                 hourly_data[hour_key] = 0.0
             if forecast.ghi is not None and substation.installed_solar_capacity is not None:
-                estimated_mw = (forecast.ghi / 1000) * substation.installed_solar_capacity * 0.15
+                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
                 hourly_data[hour_key] += estimated_mw
                 current_app.logger.info(f"Substation {substation.id}, Hour: {hour_key}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
             else:
