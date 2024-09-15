@@ -103,7 +103,17 @@ def aggregate_forecast():
                 hourly_data[hour_key] = 0.0
             if forecast.ghi is not None and substation.installed_solar_capacity is not None:
                 estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
-                hourly_data[hour_key] += estimated_mw
+                # Check the forecast provider and handle accordingly
+                if substation.forecast_location_rel.provider_name.lower() == 'solcast':
+                    # For Solcast, we'll average the two 30-minute readings
+                    hourly_data[hour_key]['sum'] += estimated_mw
+                    hourly_data[hour_key]['count'] += 1
+                else:
+                    # For hourly data, we'll just use the value as-is
+                    hourly_data[hour_key]['sum'] = estimated_mw
+                    hourly_data[hour_key]['count'] = 1
+
+
                 print(f"Substation {substation.id}, Hour: {hour_key}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
             else:
                 print(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
@@ -111,9 +121,24 @@ def aggregate_forecast():
     print(f"Hourly data before processing: {hourly_data}")
 
 
-    # Convert to pandas Series for easy resampling and interpolation
-    s = pd.Series(hourly_data)
-    s = s.resample('15T').interpolate(method='cubic')  # Resample to 15-minute intervals and interpolate
+
+    # Calculate the final hourly values
+    final_hourly_data = {}
+    for hour, data in hourly_data.items():
+        if data['count'] > 0:
+            final_hourly_data[hour] = data['sum'] / data['count']
+        else:
+            final_hourly_data[hour] = 0.0
+
+    print(f"Hourly data after processing: {final_hourly_data}")
+
+    # Convert to pandas Series for interpolation
+    s = pd.Series(final_hourly_data)
+    s = s.resample('30T').interpolate(method='cubic')  # Resample to 30-minute intervals and interpolate
+
+
+
+
 
     result = {
         'current_utc_time': now.isoformat(),
