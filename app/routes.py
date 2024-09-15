@@ -87,7 +87,7 @@ def aggregate_forecast():
                 aggregated_data[timestamp] = 0
             
             substation = GridSubstation.query.filter_by(forecast_location=forecast.forecast_location_id).first()
-            current_app.logger.info(f"Aggregated substation: {substation}")
+            print(f"Aggregated substation: {substation}")
 
             if substation:
                 estimated_mw = (forecast.ghi / 1000) #* float(substation.installed_solar_capacity) * 0.15
@@ -95,7 +95,7 @@ def aggregate_forecast():
             else:
                 current_app.logger.warning(f"No substation found for forecast_location_id: {forecast.forecast_location_id}")
 
-        current_app.logger.info(f"Aggregated data: {aggregated_data}")
+        print(f"Aggregated data: {aggregated_data}")
 
         sorted_data = sorted(aggregated_data.items())
         return jsonify({
@@ -103,7 +103,7 @@ def aggregate_forecast():
             'total_estimated_mw': [item[1] for item in sorted_data]
         })
     except Exception as e:
-        current_app.logger.error(f"Error in aggregate_forecast: {str(e)}", exc_info=True)
+        print(f"Error in aggregate_forecast: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 
