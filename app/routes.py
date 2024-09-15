@@ -92,12 +92,14 @@ def aggregate_forecast():
         print(f"Found {len(forecasts)} forecasts for substation {substation.id}")
 
         for forecast in forecasts:
-            
+            provider = substation.forecast_location_rel.provider_name.lower()
             hour_key = forecast.timestamp.replace(minute=0, second=0, microsecond=0)
             if forecast.ghi is not None and substation.installed_solar_capacity is not None:
-                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
+
                 if substation.forecast_location_rel.provider_name.lower() == 'solcast':
-                    estimated_mw= estimated_mw/2
+                    estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15 *0.5
+                else:
+                    estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15 
 
 
                 hourly_data[hour_key]['sum'] += estimated_mw
