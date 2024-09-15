@@ -68,10 +68,68 @@ from sqlalchemy import func
 import pandas as pd
 
 
+@main.route('/api/aggregate_forecast')
+def aggregate_forecast():
+    now = datetime.now(timezone.utc)
+    start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=12)
+    end_time = start_time + timedelta(hours=24)
+
+    print(f"Current UTC time: {now}")
+    print(f"Fetching forecasts from {start_time} to {end_time}")
+
+    substations = GridSubstation.query.all()
+    print(f"Found {len(substations)} substations")
+
+    hourly_data = {start_time + timedelta(hours=i): {'sum': 0.0, 'count': 0} for i in range(25)}
+
+    for substation in substations:
+        forecasts = IrradiationForecast.query.filter(
+            IrradiationForecast.forecast_location_id == substation.forecast_location,
+            IrradiationForecast.timestamp >= start_time,
+            IrradiationForecast.timestamp <= end_time
+        ).order_by(IrradiationForecast.timestamp).all()
+
+        print(f"Found {len(forecasts)} forecasts for substation {substation.id}")
+
+        for forecast in forecasts:
+            hour_key = forecast.timestamp.replace(minute=0, second=0, microsecond=0)
+            if forecast.ghi is not None and substation.installed_solar_capacity is not None:
+                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
+                
+                hourly_data[hour_key]['sum'] += estimated_mw
+                hourly_data[hour_key]['count'] += 1
+
+                print(f"Substation {substation.id}, Hour: {hour_key}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
+            else:
+                print(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
+
+    # Calculate the average for each hour
+    final_hourly_data = {}
+    for hour, data in hourly_data.items():
+        if data['count'] > 0:
+            final_hourly_data[hour] = data['sum'] / data['count']
+        else:
+            final_hourly_data[hour] = 0.0
+
+    print(f"Hourly data after processing: {final_hourly_data}")
+
+    # Convert to pandas Series for easy resampling and interpolation
+    s = pd.Series(final_hourly_data)
+    s = s.resample('30T').interpolate(method='cubic')  # Resample to 30-minute intervals and interpolate
+
+    result = {
+        'current_utc_time': now.isoformat(),
+        'timestamps': s.index.strftime('%Y-%m-%dT%H:%M:%S%z').tolist(),
+        'total_estimated_mw': s.tolist(),
+        'hourly_data': {k.isoformat(): v for k, v in final_hourly_data.items()}  # Include original hourly data
+    }
+
+    print(f"Final result: {result}")
+    return jsonify(result)
 
 
 
-
+""" 
 
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
@@ -150,7 +208,7 @@ def aggregate_forecast():
     print(f"Final result: {result}")
     return jsonify(result)
 
-
+ """
 
 
 
