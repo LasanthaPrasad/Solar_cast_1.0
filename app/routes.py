@@ -1312,7 +1312,7 @@ def get_substation_forecast(substation_id):
 
 #@main.route('/api/check_forecasts_sub/<substation>')
 def calculate_substation_forecasts(substation):
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc)- timedelta(hours=1)
     three_days_later = now + timedelta(days=1)
 
     # Get the forecast location for this substation
