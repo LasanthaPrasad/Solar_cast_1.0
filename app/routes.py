@@ -71,9 +71,9 @@ import pandas as pd
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     now = datetime.now(timezone.utc)
-    start_time = now.replace(hour=0,minute=0, second=0, microsecond=0) - timedelta(hours=2)
+    start_time = now.replace(hour=0,minute=0, second=0, microsecond=0) - timedelta(hours=1)
     # start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=2)
-    end_time = start_time + timedelta(hours=24)
+    end_time = start_time + timedelta(hours=22)
 
     print(f"Current UTC time: {now}")
     print(f"Fetching forecasts from {start_time} to {end_time}")
@@ -115,7 +115,7 @@ def aggregate_forecast():
                 print(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
 
     # Calculate the final hourly values without resetting counts to zero
-    final_hourly_data = {hour: data['sum'] for hour, data in hourly_data.items()}
+    final_hourly_data =  {hour: data['sum'] for hour, data in hourly_data.items()}
 
     print(f"Hourly data after processing: {final_hourly_data}")
 
