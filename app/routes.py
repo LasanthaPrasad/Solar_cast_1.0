@@ -110,7 +110,7 @@ def aggregate_grid_forecast():
                     mid_point = hour_start + timedelta(minutes=30)
                     
                     df.at[hour_start, 'total_mw'] += current_mw
-                    df.at[mid_point, 'total_mw'] += (current_mw + next_mw) / 2  # Average of current and next hour
+                    df.at[mid_point, 'total_mw'] += (current_mw + next_mw) / 4  # Average of current and next hour
 
     # Store the original 30-minute data
     original_data = df[df['total_mw'] > 0].copy()
