@@ -26,7 +26,7 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Aggregated Forecast for All Grid Substations</h5>
-                <div id="aggregateForecastChart" style="height: 600px;"></div>
+                <div id="forecastChart" style="width:100%; height:600px;"></div>
             </div>
         </div>
     </div>
@@ -43,38 +43,34 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
 
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/aggregate_grid_forecast')
+                .then(response => response.json())
+                .then(data => {
+                    var trace = {
+                        x: data.timestamps.map(t => new Date(t)),
+                        y: data.total_estimated_mw,
+                        type: 'scatter',
+                        mode: 'lines',
+                        line: {shape: 'spline', smoothing: 1.3}
+                    };
 
-function fetchAndDisplayForecast() {
-    fetch('/api/aggregate_forecast')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Received data:', data);  // For debugging
-            
-            var trace = {
-                x: data.timestamps.map(t => new Date(t)),
-                y: data.total_estimated_mw,
-                type: 'scatter',
-                mode: 'lines+markers'
-            };
+                    var layout = {
+                        title: 'Aggregate Forecast for All Grid Substations',
+                        xaxis: {
+                            title: 'Time',
+                            tickformat: '%H:%M\n%Y-%m-%d'
+                        },
+                        yaxis: {title: 'Total Estimated MW'}
+                    };
 
-            var layout = {
-                title: 'Aggregate Forecast for All Grid Substations',
-                xaxis: {
-                    title: 'Time',
-                    tickformat: '%H:%M\n%Y-%m-%d'
-                },
-                yaxis: {title: 'Total Estimated MW'}
-            };
-
-            Plotly.newPlot('forecastChart', [trace], layout);
-        })
-        .catch(error => {
-            console.error('Error fetching forecast data:', error);
+                    Plotly.newPlot('forecastChart', [trace], layout);
+                })
+                .catch(error => console.error('Error:', error));
         });
-}
 
-
-
+// Call the function when the page loads
+document.addEventListener('DOMContentLoaded', fetchAndPlotAggregateForecast);
 
 
 
@@ -139,9 +135,7 @@ function initMap() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    fetchAndDisplayForecast();
-});
+
 document.addEventListener("DOMContentLoaded", initMap);
 </script>
 {% endblock %}

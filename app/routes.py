@@ -72,24 +72,18 @@ import pandas as pd
 
 
 
-
-
-@main.route('/api/aggregate_forecast')
-def aggregate_forecast():
+@main.route('/api/aggregate_grid_forecast')
+def aggregate_grid_forecast():
     now = datetime.now(timezone.utc)
     start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=1)
-    end_time = start_time + timedelta(hours=22)
+    end_time = start_time + timedelta(hours=23)
 
-    print(f"Current UTC time: {now}")
-    print(f"Fetching forecasts from {start_time} to {end_time}")
-
-    # Create a 15-minute resolution DataFrame
-    date_range = pd.date_range(start=start_time, end=end_time, freq='60min')
+    # Create a 30-minute resolution DataFrame
+    date_range = pd.date_range(start=start_time, end=end_time, freq='30T')
     df = pd.DataFrame(index=date_range, columns=['total_mw'])
     df['total_mw'] = 0.0
 
     substations = GridSubstation.query.all()
-    print(f"Found {len(substations)} substations")
 
     for substation in substations:
         forecasts = IrradiationForecast.query.filter(
@@ -98,34 +92,34 @@ def aggregate_forecast():
             IrradiationForecast.timestamp <= end_time
         ).order_by(IrradiationForecast.timestamp).all()
 
-        print(f"Found {len(forecasts)} forecasts for substation {substation.id}")
+        provider = substation.forecast_location_rel.provider_name.lower()
 
         for forecast in forecasts:
-            if forecast.ghi is not None and substation.installed_solar_capacity is not None:
-                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity)*0.15
-                
-                # Find the closest 15-minute mark
-                closest_time = pd.Timestamp(forecast.timestamp).floor('60min')
-                if closest_time in df.index:
+            if forecast.ghi is not None:
+                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
+
+                if provider == 'solcast':
+                    # Solcast data is already 30-minute resolution
+                    closest_time = pd.Timestamp(forecast.timestamp).floor('30T')
                     df.at[closest_time, 'total_mw'] += estimated_mw
+                elif provider in ['geoclipz', 'visualcrossing']:
+                    # For hourly data, we need to split it into two 30-minute intervals
+                    hour_start = pd.Timestamp(forecast.timestamp).floor('H')
+                    mid_point = hour_start + timedelta(minutes=30)
+                    
+                    df.at[hour_start, 'total_mw'] += estimated_mw
+                    df.at[mid_point, 'total_mw'] += estimated_mw
 
-                print(f"Substation {substation.id}, Time: {closest_time}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
-            else:
-                print(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
-
-    # Interpolate missing values
-    df['total_mw'] = df['total_mw'].interpolate(method='cubic')
+    # Interpolate to 5-minute intervals
+    df_interpolated = df.resample('5T').interpolate(method='cubic')
 
     result = {
         'current_utc_time': now.isoformat(),
-        'timestamps': df.index.strftime('%Y-%m-%dT%H:%M:%S%z').tolist(),
-        'total_estimated_mw': df['total_mw'].tolist(),
+        'timestamps': df_interpolated.index.strftime('%Y-%m-%dT%H:%M:%S%z').tolist(),
+        'total_estimated_mw': df_interpolated['total_mw'].tolist(),
     }
 
-    print(f"Final result: {result}")
     return jsonify(result)
-
-
 
 
 
