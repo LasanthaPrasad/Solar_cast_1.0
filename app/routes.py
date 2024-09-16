@@ -74,18 +74,17 @@ import pandas as pd
 
 
 
-
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     now = datetime.now(timezone.utc)
-    start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=2)
+    start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=1)
     end_time = start_time + timedelta(hours=22)
 
     print(f"Current UTC time: {now}")
     print(f"Fetching forecasts from {start_time} to {end_time}")
 
-    # Create a 5-minute resolution DataFrame
-    date_range = pd.date_range(start=start_time, end=end_time, freq='15min')
+    # Create a 15-minute resolution DataFrame
+    date_range = pd.date_range(start=start_time, end=end_time, freq='15T')
     df = pd.DataFrame(index=date_range, columns=['total_mw'])
     df['total_mw'] = 0.0
 
@@ -103,10 +102,10 @@ def aggregate_forecast():
 
         for forecast in forecasts:
             if forecast.ghi is not None and substation.installed_solar_capacity is not None:
-                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity)* 0.15
+                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity)*0.15
                 
-                # Find the closest 5-minute mark
-                closest_time = pd.Timestamp(forecast.timestamp).round('15min')
+                # Find the closest 15-minute mark
+                closest_time = pd.Timestamp(forecast.timestamp).floor('15T')
                 if closest_time in df.index:
                     df.at[closest_time, 'total_mw'] += estimated_mw
 
@@ -125,8 +124,6 @@ def aggregate_forecast():
 
     print(f"Final result: {result}")
     return jsonify(result)
-
-
 
 
 
