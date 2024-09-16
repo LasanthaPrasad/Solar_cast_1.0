@@ -103,12 +103,12 @@ def aggregate_forecast():
 
         for forecast in forecasts:
             if forecast.ghi is not None and substation.installed_solar_capacity is not None:
-                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity)
+                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity)* 0.15
                 
                 # Find the closest 5-minute mark
-                closest_time = pd.Timestamp(forecast.timestamp).round('5T')
+                closest_time = pd.Timestamp(forecast.timestamp).round('5min')
                 if closest_time in df.index:
-                    df.at[closest_time, 'total_mw'] += estimated_mw
+                    df.at[closest_time, 'total_mw'] = estimated_mw
 
                 print(f"Substation {substation.id}, Time: {closest_time}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
             else:
