@@ -43,46 +43,37 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
 
-function fetchAndPlotAggregateForecast() {
+
+function fetchAndDisplayForecast() {
     fetch('/api/aggregate_forecast')
         .then(response => response.json())
         .then(data => {
-            var trace1 = {
+            console.log('Received data:', data);  // For debugging
+            
+            var trace = {
                 x: data.timestamps.map(t => new Date(t)),
                 y: data.total_estimated_mw,
                 type: 'scatter',
-                mode: 'lines',
-                name: 'Interpolated',
-                line: {shape: 'spline', smoothing: 1.3}
-            };
-
-            var trace2 = {
-                x: Object.keys(data.hourly_data).map(t => new Date(t)),
-                y: Object.values(data.hourly_data),
-                type: 'scatter',
-                mode: 'markers',
-                name: 'Hourly Data',
-                marker: {size: 10}
+                mode: 'lines+markers'
             };
 
             var layout = {
-                title: '    ',
+                title: 'Aggregate Forecast for All Grid Substations',
                 xaxis: {
                     title: 'Time',
-                    tickformat: '%H:%M',
-                    dtick: 3600000  // show tick every hour
+                    tickformat: '%H:%M\n%Y-%m-%d'
                 },
-                yaxis: {title: 'Total Estimated MW'},
-                legend: {orientation: 'h', y: -0.2}
+                yaxis: {title: 'Total Estimated MW'}
             };
 
-
-            Plotly.newPlot('aggregateForecastChart', [trace1, trace2], layout);
+            Plotly.newPlot('forecastChart', [trace], layout);
         })
         .catch(error => {
-            console.error('Error fetching aggregate forecast:', error);
+            console.error('Error fetching forecast data:', error);
         });
 }
+
+
 
 
 
@@ -148,8 +139,9 @@ function initMap() {
     });
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    fetchAndDisplayForecast();
+});
 document.addEventListener("DOMContentLoaded", initMap);
-document.addEventListener('DOMContentLoaded', fetchAndPlotAggregateForecast);
-
 </script>
 {% endblock %}
