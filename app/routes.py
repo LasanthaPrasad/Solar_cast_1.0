@@ -103,7 +103,7 @@ def aggregate_forecast():
                     estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15 
 
 
-                hourly_data[hour_key]['sum'] += estimated_mw
+                hourly_data[hour_key]['sum'] = estimated_mw
                 hourly_data[hour_key]['count'] += 1
 
 
