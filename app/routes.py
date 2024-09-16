@@ -70,13 +70,11 @@ import pandas as pd
 
 
 
-
-
 @main.route('/api/aggregate_grid_forecast')
 def aggregate_grid_forecast():
     now = datetime.now(timezone.utc)
-    start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=1)
-    end_time = start_time + timedelta(hours=23)
+    start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=12)
+    end_time = start_time + timedelta(hours=24)
 
     # Create a 30-minute resolution DataFrame
     date_range = pd.date_range(start=start_time, end=end_time, freq='30T')
@@ -99,16 +97,17 @@ def aggregate_grid_forecast():
                 estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
 
                 if provider == 'solcast':
-                    # Solcast data is already 30-minute resolution
                     closest_time = pd.Timestamp(forecast.timestamp).floor('30T')
                     df.at[closest_time, 'total_mw'] += estimated_mw
                 elif provider in ['geoclipz', 'visualcrossing']:
-                    # For hourly data, we need to split it into two 30-minute intervals
                     hour_start = pd.Timestamp(forecast.timestamp).floor('H')
                     mid_point = hour_start + timedelta(minutes=30)
                     
                     df.at[hour_start, 'total_mw'] += estimated_mw
                     df.at[mid_point, 'total_mw'] += estimated_mw
+
+    # Store the original 30-minute data
+    original_data = df[df['total_mw'] > 0].copy()
 
     # Interpolate to 5-minute intervals
     df_interpolated = df.resample('5T').interpolate(method='cubic')
@@ -117,10 +116,11 @@ def aggregate_grid_forecast():
         'current_utc_time': now.isoformat(),
         'timestamps': df_interpolated.index.strftime('%Y-%m-%dT%H:%M:%S%z').tolist(),
         'total_estimated_mw': df_interpolated['total_mw'].tolist(),
+        'original_timestamps': original_data.index.strftime('%Y-%m-%dT%H:%M:%S%z').tolist(),
+        'original_total_estimated_mw': original_data['total_mw'].tolist()
     }
 
     return jsonify(result)
-
 
 
 

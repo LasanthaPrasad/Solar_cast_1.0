@@ -43,34 +43,45 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('/api/aggregate_grid_forecast')
-                .then(response => response.json())
-                .then(data => {
-                    var trace = {
-                        x: data.timestamps.map(t => new Date(t)),
-                        y: data.total_estimated_mw,
-                        type: 'scatter',
-                        mode: 'lines',
-                        line: {shape: 'spline', smoothing: 1.3}
-                    };
 
-                    var layout = {
-                        title: 'Aggregate Forecast for All Grid Substations',
-                        xaxis: {
-                            title: 'Time',
-                            tickformat: '%H:%M\n%Y-%m-%d'
-                        },
-                        yaxis: {title: 'Total Estimated MW'}
-                    };
 
-                    Plotly.newPlot('forecastChart', [trace], layout);
-                })
-                .catch(error => console.error('Error:', error));
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/api/aggregate_grid_forecast')
+            .then(response => response.json())
+            .then(data => {
+                var interpolatedTrace = {
+                    x: data.timestamps.map(t => new Date(t)),
+                    y: data.total_estimated_mw,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Interpolated Data',
+                    line: {color: 'blue', shape: 'spline', smoothing: 1.3}
+                };
 
-// Call the function when the page loads
-document.addEventListener('DOMContentLoaded', fetchAndPlotAggregateForecast);
+                var originalDataTrace = {
+                    x: data.original_timestamps.map(t => new Date(t)),
+                    y: data.original_total_estimated_mw,
+                    type: 'scatter',
+                    mode: 'markers',
+                    name: 'Actual Data Points',
+                    marker: {color: 'red', size: 8}
+                };
+
+                var layout = {
+                    title: 'Aggregate Forecast for All Grid Substations',
+                    xaxis: {
+                        title: 'Time',
+                        tickformat: '%H:%M\n%Y-%m-%d'
+                    },
+                    yaxis: {title: 'Total Estimated MW'},
+                    legend: {orientation: 'h', y: -0.2}
+                };
+
+                Plotly.newPlot('forecastChart', [interpolatedTrace, originalDataTrace], layout);
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
 
 
 
