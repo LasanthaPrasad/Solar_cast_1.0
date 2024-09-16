@@ -84,7 +84,7 @@ def aggregate_forecast():
     print(f"Fetching forecasts from {start_time} to {end_time}")
 
     # Create a 15-minute resolution DataFrame
-    date_range = pd.date_range(start=start_time, end=end_time, freq='15T')
+    date_range = pd.date_range(start=start_time, end=end_time, freq='30min')
     df = pd.DataFrame(index=date_range, columns=['total_mw'])
     df['total_mw'] = 0.0
 
@@ -105,7 +105,7 @@ def aggregate_forecast():
                 estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity)*0.15
                 
                 # Find the closest 15-minute mark
-                closest_time = pd.Timestamp(forecast.timestamp).floor('15T')
+                closest_time = pd.Timestamp(forecast.timestamp).floor('30min')
                 if closest_time in df.index:
                     df.at[closest_time, 'total_mw'] += estimated_mw
 
