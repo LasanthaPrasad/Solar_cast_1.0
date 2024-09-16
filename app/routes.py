@@ -68,6 +68,74 @@ from sqlalchemy import func
 import pandas as pd
 
 
+
+
+
+
+
+
+
+@main.route('/api/aggregate_forecast')
+def aggregate_forecast():
+    now = datetime.now(timezone.utc)
+    start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=2)
+    end_time = start_time + timedelta(hours=22)
+
+    print(f"Current UTC time: {now}")
+    print(f"Fetching forecasts from {start_time} to {end_time}")
+
+    # Create a 5-minute resolution DataFrame
+    date_range = pd.date_range(start=start_time, end=end_time, freq='5T')
+    df = pd.DataFrame(index=date_range, columns=['total_mw'])
+    df['total_mw'] = 0.0
+
+    substations = GridSubstation.query.all()
+    print(f"Found {len(substations)} substations")
+
+    for substation in substations:
+        forecasts = IrradiationForecast.query.filter(
+            IrradiationForecast.forecast_location_id == substation.forecast_location,
+            IrradiationForecast.timestamp >= start_time,
+            IrradiationForecast.timestamp <= end_time
+        ).order_by(IrradiationForecast.timestamp).all()
+
+        print(f"Found {len(forecasts)} forecasts for substation {substation.id}")
+
+        for forecast in forecasts:
+            if forecast.ghi is not None and substation.installed_solar_capacity is not None:
+                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity)
+                
+                # Find the closest 5-minute mark
+                closest_time = pd.Timestamp(forecast.timestamp).round('5T')
+                if closest_time in df.index:
+                    df.at[closest_time, 'total_mw'] += estimated_mw
+
+                print(f"Substation {substation.id}, Time: {closest_time}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
+            else:
+                print(f"Invalid data for substation {substation.id}, forecast_location_id: {substation.forecast_location}, GHI: {forecast.ghi}, Installed capacity: {substation.installed_solar_capacity}")
+
+    # Interpolate missing values
+    df['total_mw'] = df['total_mw'].interpolate(method='cubic')
+
+    result = {
+        'current_utc_time': now.isoformat(),
+        'timestamps': df.index.strftime('%Y-%m-%dT%H:%M:%S%z').tolist(),
+        'total_estimated_mw': df['total_mw'].tolist(),
+    }
+
+    print(f"Final result: {result}")
+    return jsonify(result)
+
+
+
+
+
+
+
+
+
+
+""" 
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     now = datetime.now(timezone.utc)
@@ -97,7 +165,7 @@ def aggregate_forecast():
             hour_key = forecast.timestamp.replace(minute=0, second=0, microsecond=0)
             if forecast.ghi is not None and substation.installed_solar_capacity is not None:
 
-                if substation.forecast_location_rel.provider_name.lower() == 'solcast':
+                if substation.forecast_location_rel.provider_name.lower() == 'solcast' :
                     estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15 *0.5
                 else:
                     estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15 
@@ -132,7 +200,7 @@ def aggregate_forecast():
 
     print(f"Final result: {result}")
     return jsonify(result)
-
+ """
 """ 
 
 @main.route('/api/aggregate_forecast')
