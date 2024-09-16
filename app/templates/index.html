@@ -76,6 +76,7 @@ function fetchAndPlotAggregateForecast() {
                 legend: {orientation: 'h', y: -0.2}
             };
 
+            
             Plotly.newPlot('aggregateForecastChart', [trace1, trace2], layout);
         })
         .catch(error => {
