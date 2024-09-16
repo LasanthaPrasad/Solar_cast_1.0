@@ -71,9 +71,9 @@ import pandas as pd
 @main.route('/api/aggregate_forecast')
 def aggregate_forecast():
     now = datetime.now(timezone.utc)
-    start_time = now.replace(hours=0,minute=0, second=0, microsecond=0) - timedelta(hours=2)
+    start_time = now.replace(hour=0,minute=0, second=0, microsecond=0) - timedelta(hours=2)
     # start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=2)
-    end_time = start_time + timedelta(hours=22)
+    end_time = start_time + timedelta(hours=24)
 
     print(f"Current UTC time: {now}")
     print(f"Fetching forecasts from {start_time} to {end_time}")
