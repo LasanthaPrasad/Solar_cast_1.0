@@ -69,7 +69,6 @@ import pandas as pd
 
 
 
-
 @main.route('/api/aggregate_grid_forecast')
 def aggregate_grid_forecast():
     now = datetime.now(timezone.utc)
@@ -92,19 +91,26 @@ def aggregate_grid_forecast():
 
         provider = substation.forecast_location_rel.provider_name.lower()
 
-        for forecast in forecasts:
-            if forecast.ghi is not None:
-                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
-
-                if provider == 'solcast':
+        if provider == 'solcast':
+            for forecast in forecasts:
+                if forecast.ghi is not None:
+                    estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
                     closest_time = pd.Timestamp(forecast.timestamp).floor('30T')
                     df.at[closest_time, 'total_mw'] += estimated_mw
-                elif provider in ['geoclipz', 'visualcrossing']:
-                    hour_start = pd.Timestamp(forecast.timestamp).floor('H')
+        elif provider in ['geoclipz', 'visualcrossing']:
+            for i in range(len(forecasts) - 1):  # Stop at the second-to-last forecast
+                current_forecast = forecasts[i]
+                next_forecast = forecasts[i + 1]
+                
+                if current_forecast.ghi is not None and next_forecast.ghi is not None:
+                    current_mw = (current_forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
+                    next_mw = (next_forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
+                    
+                    hour_start = pd.Timestamp(current_forecast.timestamp).floor('H')
                     mid_point = hour_start + timedelta(minutes=30)
                     
-                    df.at[hour_start, 'total_mw'] += estimated_mw
-                    df.at[mid_point, 'total_mw'] += estimated_mw
+                    df.at[hour_start, 'total_mw'] += current_mw
+                    df.at[mid_point, 'total_mw'] += (current_mw + next_mw) / 2  # Average of current and next hour
 
     # Store the original 30-minute data
     original_data = df[df['total_mw'] > 0].copy()
@@ -121,8 +127,6 @@ def aggregate_grid_forecast():
     }
 
     return jsonify(result)
-
-
 
 
 
