@@ -39,7 +39,8 @@ from .scheduler import init_app as init_scheduler
 
 
 def create_app():
-    app = Flask(__name__)
+    """     app = Flask(__name__) """
+    app = Flask(__name__, static_folder='assets', static_url_path='/assets')
     app.config.from_object('config.Config')
     app.config['MAIL_SERVER'] = 'smtp.cloudmta.net'
     app.config['MAIL_PORT'] = 587
