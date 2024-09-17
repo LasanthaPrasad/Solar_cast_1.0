@@ -17,20 +17,30 @@
             color: white !important;
         }
 
-
-        /* ... other styles ... */
         #hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+        position: relative;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-align: center;
+        overflow: hidden;
+        }
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-size: cover;
             background-position: center;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-align: center;
+            transition: opacity 1s ease-in-out;
         }
-        /* ... other styles ... */
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
         #features {
             padding: 50px 0;
         }
@@ -58,18 +68,20 @@
             </div>
         </div>
     </nav>
-
     <!-- Hero Section -->
     <section id="hero">
-
-
-        <div class="container">
-
-            <h1 class="display-4">Welcome to GeoClipz Forecast</h1>
-            <p class="lead">Revolutionizing solar energy forecasting with cutting-edge technology</p>
-            <a href="#features" class="btn btn-primary btn-lg">Learn More</a>
+        <div class="hero-background"></div>
+        <div class="hero-background" style="opacity: 0;"></div>
+        <div class="hero-content">
+            <div class="container">
+                <h1 class="display-4">Welcome to GeoClipz Forecast</h1>
+                <p class="lead">Revolutionizing solar energy forecasting with cutting-edge technology</p>
+                <a href="#features" class="btn btn-primary btn-lg">Learn More</a>
+            </div>
         </div>
     </section>
+
+
 
     <!-- Features Section -->
     <section id="features" class="bg-light">
@@ -168,32 +180,46 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  const heroSection = document.getElementById('hero-section');
+
   
   // Use your Unsplash API Access Key here
   const accessKey = 'cHtF3w5WKS2nCdh8UUILw0poDn1qlpFfgp7W0DqAmL8';
-
-
-    const heroElement = document.getElementById('hero');
+  const heroElement = document.getElementById('hero');
+    const backgroundElements = heroElement.querySelectorAll('.hero-background');
+    let currentBackgroundIndex = 0;
 
     function updateHeroBackground() {
         fetch(`https://api.unsplash.com/photos/random?client_id=${accessKey}&query=solar-energy&orientation=landscape`)
             .then(response => response.json())
             .then(data => {
                 const imageUrl = data.urls.regular;
-                heroElement.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${imageUrl}')`;
+                const nextBackgroundIndex = (currentBackgroundIndex + 1) % 2;
+                const nextBackground = backgroundElements[nextBackgroundIndex];
+
+                nextBackground.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${imageUrl}')`;
+                nextBackground.style.opacity = '0';
+
+                // Trigger reflow
+                void nextBackground.offsetWidth;
+
+                // Fade in new background
+                nextBackground.style.opacity = '1';
+                // Fade out current background
+                backgroundElements[currentBackgroundIndex].style.opacity = '0';
+
+                currentBackgroundIndex = nextBackgroundIndex;
             })
             .catch(error => {
                 console.error('Error fetching Unsplash image:', error);
                 // Fallback to a default image if the API call fails
-                heroElement.style.backgroundImage = "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/1600x900/?solar,power,solar_forecast')";
+                backgroundElements[currentBackgroundIndex].style.backgroundImage = "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/1600x900/?solar,energy')";
             });
     }
 
     // Update the background when the page loads
     updateHeroBackground();
 
-    // Optionally, update the background every 5 minutes (300000 milliseconds)
+    // Update the background every 5 minutes (300000 milliseconds)
     setInterval(updateHeroBackground, 5000);
 
 
