@@ -1,3 +1,2 @@
-
-web: http-server
+web: gunicorn run:app
 clock: python clock.py
