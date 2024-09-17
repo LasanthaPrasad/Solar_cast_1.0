@@ -1240,7 +1240,7 @@ def recalculate_all_substation_capacities():
 #    total_capacity = db.session.query(db.func.sum(GridSubstation.installed_solar_capacity)).scalar() or 0
 #    return render_template('index.html', total_mw=total_mw, total_capacity=total_capacity)
 
-
+""" 
 @main.route('/')
 def index():
     total_mw = db.session.query(db.func.sum(SolarPlant.installed_capacity)).scalar() or 0
@@ -1254,10 +1254,14 @@ def index():
                            total_mw=total_mw, 
                            total_capacity=total_capacity,
                            forecast_locations=forecast_locations)
+ """
 
 
+@main.route('/')
+def index():
 
-
+    
+    return render_template('index.html')
 
 
 
