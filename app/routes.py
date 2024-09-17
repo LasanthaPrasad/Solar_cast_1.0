@@ -1242,7 +1242,7 @@ def recalculate_all_substation_capacities():
 
  
 @main.route('/platform')
-def platfrom():
+def platform():
     total_mw = db.session.query(db.func.sum(SolarPlant.installed_capacity)).scalar() or 0
     total_capacity = db.session.query(db.func.sum(GridSubstation.installed_solar_capacity)).scalar() or 0
     forecast_locations = ForecastLocation.query.all()
