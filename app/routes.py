@@ -1241,7 +1241,7 @@ def recalculate_all_substation_capacities():
 #    return render_template('index.html', total_mw=total_mw, total_capacity=total_capacity)
 
  
-@main.route('/platfrom')
+@main.route('/platform')
 def platfrom():
     total_mw = db.session.query(db.func.sum(SolarPlant.installed_capacity)).scalar() or 0
     total_capacity = db.session.query(db.func.sum(GridSubstation.installed_solar_capacity)).scalar() or 0
