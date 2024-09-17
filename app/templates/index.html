@@ -17,6 +17,8 @@
             color: white !important;
         }
 
+
+
         #hero {
         position: relative;
         height: 100vh;
@@ -26,21 +28,24 @@
         color: white;
         text-align: center;
         overflow: hidden;
-        }
-        .hero-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            transition: opacity 1s ease-in-out;
-        }
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
+    }
+    .hero-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        transition: opacity 1s ease-in-out;
+    }
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+
+
         #features {
             padding: 50px 0;
         }
@@ -80,6 +85,8 @@
             </div>
         </div>
     </section>
+
+
 
 
 
@@ -180,47 +187,45 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-
-  
-  // Use your Unsplash API Access Key here
-  const accessKey = 'cHtF3w5WKS2nCdh8UUILw0poDn1qlpFfgp7W0DqAmL8';
-  const heroElement = document.getElementById('hero');
+    const heroElement = document.getElementById('hero');
     const backgroundElements = heroElement.querySelectorAll('.hero-background');
     let currentBackgroundIndex = 0;
 
+    // List of image filenames in your static/hero_images folder
+    const heroImages = [
+        'image1.jpg',
+        'image2.jpg',
+        'image3.jpg'
+        // Add all your image filenames here
+    ];
+
+    function getRandomImage() {
+        const randomIndex = Math.floor(Math.random() * heroImages.length);
+        return `/static/hero_images/${heroImages[randomIndex]}`;
+    }
+
     function updateHeroBackground() {
-        fetch(`https://api.unsplash.com/photos/random?client_id=${accessKey}&query=solar-energy&orientation=landscape`)
-            .then(response => response.json())
-            .then(data => {
-                const imageUrl = data.urls.regular;
-                const nextBackgroundIndex = (currentBackgroundIndex + 1) % 2;
-                const nextBackground = backgroundElements[nextBackgroundIndex];
+        const imageUrl = getRandomImage();
+        const nextBackgroundIndex = (currentBackgroundIndex + 1) % 2;
+        const nextBackground = backgroundElements[nextBackgroundIndex];
 
-                nextBackground.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${imageUrl}')`;
-                nextBackground.style.opacity = '0';
+        nextBackground.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${imageUrl}')`;
+        nextBackground.style.opacity = '0';
 
-                // Trigger reflow
-                void nextBackground.offsetWidth;
+        // Trigger reflow
+        void nextBackground.offsetWidth;
 
-                // Fade in new background
-                nextBackground.style.opacity = '1';
-                // Fade out current background
-                backgroundElements[currentBackgroundIndex].style.opacity = '0';
+        // Fade in new background
+        nextBackground.style.opacity = '1';
+        // Fade out current background
+        backgroundElements[currentBackgroundIndex].style.opacity = '0';
 
-                currentBackgroundIndex = nextBackgroundIndex;
-            })
-            .catch(error => {
-                console.error('Error fetching Unsplash image:', error);
-                // Fallback to a default image if the API call fails
-                backgroundElements[currentBackgroundIndex].style.backgroundImage = "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/1600x900/?solar,energy')";
-            });
+        currentBackgroundIndex = nextBackgroundIndex;
     }
 
     // Update the background when the page loads
     updateHeroBackground();
 
     // Update the background every 5 minutes (300000 milliseconds)
-    setInterval(updateHeroBackground, 5000);
-
-
+    setInterval(updateHeroBackground, 300000);
 </script>
