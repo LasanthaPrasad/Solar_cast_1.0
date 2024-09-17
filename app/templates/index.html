@@ -1,152 +1,155 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoClipz Forecast</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar {
+            background-color: #3498db;
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        #hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/1600x900/?solar,energy');
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+        #features {
+            padding: 50px 0;
+        }
+        #login-modal .modal-header {
+            background-color: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">GeoClipz Forecast</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#login-modal">Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-{% block content %}
-<h1>GeoClipz Dashboard</h1>
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Total Active Installed Capacity</h5>
-                <p class="card-text">{{ total_capacity|round(2) }} MW</p>
+    <!-- Hero Section -->
+    <section id="hero">
+        <div class="container">
+            <h1 class="display-4">Welcome to GeoClipz Forecast</h1>
+            <p class="lead">Revolutionizing solar energy forecasting with cutting-edge technology</p>
+            <a href="#features" class="btn btn-primary btn-lg">Learn More</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">Our Features</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-sun"></i> Accurate Forecasting</h5>
+                            <p class="card-text">Our advanced algorithms provide highly accurate solar energy forecasts.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-chart-line"></i> Real-time Data</h5>
+                            <p class="card-text">Access real-time data and insights for informed decision-making.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-mobile-alt"></i> Mobile Friendly</h5>
+                            <p class="card-text">Access your forecasts on-the-go with our mobile-friendly platform.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">About Us</h2>
+            <p>GeoClipz Forecast is a leading provider of solar energy forecasting solutions. Our team of experts combines meteorological data with advanced machine learning algorithms to deliver accurate and reliable forecasts for solar energy production.</p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="bg-light py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Contact Us</h2>
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <form>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" placeholder="Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" class="form-control" placeholder="Email" required>
+                        </div>
+                        <div class="mb-3">
+                            <textarea class="form-control" rows="5" placeholder="Message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="login-modal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <input type="email" class="form-control" placeholder="Email" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" placeholder="Password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Total Real-time MW</h5>
-                <p class="card-text">{{ total_mw|round(2) }} MW</p>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Aggregated Forecast for All Grid Substations</h5>
-                <div id="forecastChart" style="width:100%; height:600px;"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-<div class="mt-4" id="map" style="height: 800px;"></div>
-{% endblock %}
-
-{% block extra_js %}
-
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script>
-
-
-
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('/api/aggregate_grid_forecast')
-            .then(response => response.json())
-            .then(data => {
-                var interpolatedTrace = {
-                    x: data.timestamps.map(t => new Date(t)),
-                    y: data.total_estimated_mw,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Interpolated Data',
-                    line: {color: 'blue', shape: 'spline', smoothing: 1.3}
-                };
-
-                var originalDataTrace = {
-                    x: data.original_timestamps.map(t => new Date(t)),
-                    y: data.original_total_estimated_mw,
-                    type: 'scatter',
-                    mode: 'markers',
-                    name: 'Actual Data Points',
-                    marker: {color: 'red', size: 8}
-                };
-
-                var layout = {
-                    title: 'Aggregate Forecast for All Grid Substations',
-                    xaxis: {
-                        title: 'Time',
-                        tickformat: '%H:%M\n%Y-%m-%d'
-                    },
-                    yaxis: {title: 'Total Estimated MW'},
-                    legend: {orientation: 'h', y: -0.2}
-                };
-
-                Plotly.newPlot('forecastChart', [interpolatedTrace, originalDataTrace], layout);
-            })
-            .catch(error => console.error('Error:', error));
-    });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function initMap() {
-    const map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 7.8731, lng: 80.7718 },  // Center of Sri Lanka
-        zoom: 8,
-    });
-
-    const locations = [
-        {% if forecast_locations %}
-            {% for location in forecast_locations %}
-            {
-                position: { lat: {{ location.latitude }}, lng: {{ location.longitude }} },
-                title: "{{ location.provider_name }}",
-                content: "<h6>{{ location.provider_name }}</h6>" +
-                         "<p>Latitude: {{ location.latitude }}<br>" +
-                         "Longitude: {{ location.longitude }}<br>" +
-                         "GHI: {{ location.ghi|default('N/A') }}<br>" +
-                         "DNI: {{ location.dni|default('N/A') }}<br>" +
-                         "DHI: {{ location.dhi|default('N/A') }}</p>"
-            },
-            {% endfor %}
-        {% endif %}
-    ];
-
-    console.log("Number of locations:", locations.length);
-
-    const infoWindow = new google.maps.InfoWindow();
-
-    locations.forEach(location => {
-        const marker = new google.maps.Marker({
-            position: location.position,
-            map: map,
-            title: location.title
-        });
-
-        marker.addListener("click", () => {
-            infoWindow.close();
-            infoWindow.setContent(location.content);
-            infoWindow.open(map, marker);
-        });
-    });
-}
-
-
-document.addEventListener("DOMContentLoaded", initMap);
-</script>
-{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
