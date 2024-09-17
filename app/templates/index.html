@@ -17,7 +17,7 @@
             color: white !important;
         }
         #hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://api.unsplash.com/photos/random?client_id=cHtF3w5WKS2nCdh8UUILw0poDn1qlpFfgp7W0DqAmL8&query=renewable-energy');
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://api.unsplash.com/photos/random?client_id=cHtF3w5WKS2nCdh8UUILw0poDn1qlpFfgp7W0DqAmL8&query=solar_forecast');
             background-size: cover;
             height: 100vh;
             display: flex;
@@ -56,7 +56,12 @@
 
     <!-- Hero Section -->
     <section id="hero">
+
+            <div id="hero-section" style="height: 500px; background-size: cover; background-position: center; width: 1600px; height: 900px;">
+            <h1>Welcome to GeoClipz</h1>
+            </div>
         <div class="container">
+
             <h1 class="display-4">Welcome to GeoClipz Forecast</h1>
             <p class="lead">Revolutionizing solar energy forecasting with cutting-edge technology</p>
             <a href="#features" class="btn btn-primary btn-lg">Learn More</a>
@@ -153,3 +158,23 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+  const heroSection = document.getElementById('hero-section');
+  
+  // Use your Unsplash API Access Key here
+  const accessKey = 'cHtF3w5WKS2nCdh8UUILw0poDn1qlpFfgp7W0DqAmL8';
+
+  // Fetch a random image for the hero background
+  axios.get(`https://api.unsplash.com/photos/random?client_id=${accessKey}&query=renewable-energy`)
+    .then(response => {
+      const imageUrl = response.data.urls.raw + '&fit=crop&w=1600&h=900';  // Request 1600x900 size
+      heroSection.style.backgroundImage = `url(${imageUrl})`;
+    })
+    .catch(error => {
+      console.error('Error fetching image from Unsplash:', error);
+    });
+</script>
