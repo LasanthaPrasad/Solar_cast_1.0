@@ -16,9 +16,13 @@
         .navbar-brand, .nav-link {
             color: white !important;
         }
+
+
+        /* ... other styles ... */
         #hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://api.unsplash.com/photos/random?client_id=cHtF3w5WKS2nCdh8UUILw0poDn1qlpFfgp7W0DqAmL8&query=solar_forecast');
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
             background-size: cover;
+            background-position: center;
             height: 100vh;
             display: flex;
             align-items: center;
@@ -26,6 +30,7 @@
             color: white;
             text-align: center;
         }
+        /* ... other styles ... */
         #features {
             padding: 50px 0;
         }
@@ -57,9 +62,7 @@
     <!-- Hero Section -->
     <section id="hero">
 
-            <div id="hero-section" style="height: 500px; background-size: cover; background-position: center; width: 1600px; height: 900px;">
-            <h1>Welcome to GeoClipz</h1>
-            </div>
+
         <div class="container">
 
             <h1 class="display-4">Welcome to GeoClipz Forecast</h1>
@@ -161,20 +164,37 @@
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
   const heroSection = document.getElementById('hero-section');
   
   // Use your Unsplash API Access Key here
   const accessKey = 'cHtF3w5WKS2nCdh8UUILw0poDn1qlpFfgp7W0DqAmL8';
 
-  // Fetch a random image for the hero background
-  axios.get(`https://api.unsplash.com/photos/random?client_id=${accessKey}&query=renewable-energy`)
-    .then(response => {
-      const imageUrl = response.data.urls.raw + '&fit=crop&w=1600&h=900';  // Request 1600x900 size
-      heroSection.style.backgroundImage = `url(${imageUrl})`;
-    })
-    .catch(error => {
-      console.error('Error fetching image from Unsplash:', error);
-    });
+
+    const heroElement = document.getElementById('hero');
+
+    function updateHeroBackground() {
+        fetch(`https://api.unsplash.com/photos/random?client_id=${accessKey}&query=solar-energy&orientation=landscape`)
+            .then(response => response.json())
+            .then(data => {
+                const imageUrl = data.urls.regular;
+                heroElement.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${imageUrl}')`;
+            })
+            .catch(error => {
+                console.error('Error fetching Unsplash image:', error);
+                // Fallback to a default image if the API call fails
+                heroElement.style.backgroundImage = "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/1600x900/?solar,energy')";
+            });
+    }
+
+    // Update the background when the page loads
+    updateHeroBackground();
+
+    // Optionally, update the background every 5 minutes (300000 milliseconds)
+    setInterval(updateHeroBackground, 300000);
+
+
 </script>
