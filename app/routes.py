@@ -1250,7 +1250,7 @@ def platform():
     # Add this print statement for debugging
     print(f"Number of forecast locations: {len(forecast_locations)}")
     
-    return render_template('index.html', 
+    return render_template('index_platform.html', 
                            total_mw=total_mw, 
                            total_capacity=total_capacity,
                            forecast_locations=forecast_locations)
