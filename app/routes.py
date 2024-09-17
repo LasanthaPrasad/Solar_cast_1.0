@@ -1241,8 +1241,8 @@ def recalculate_all_substation_capacities():
 #    return render_template('index.html', total_mw=total_mw, total_capacity=total_capacity)
 
  
-@main.route('/platform')
-def platform():
+@main.route('/index')
+def index():
     total_mw = db.session.query(db.func.sum(SolarPlant.installed_capacity)).scalar() or 0
     total_capacity = db.session.query(db.func.sum(GridSubstation.installed_solar_capacity)).scalar() or 0
     forecast_locations = ForecastLocation.query.all()
@@ -1250,7 +1250,7 @@ def platform():
     # Add this print statement for debugging
     print(f"Number of forecast locations: {len(forecast_locations)}")
     
-    return render_template('index_platform.html', 
+    return render_template('index.html', 
                            total_mw=total_mw, 
                            total_capacity=total_capacity,
                            forecast_locations=forecast_locations)
@@ -1258,10 +1258,10 @@ def platform():
 
 
 @main.route('/')
-def index():
+def index_web():
 
     
-    return render_template('index.html')
+    return render_template('index_web.html')
 
 
 
