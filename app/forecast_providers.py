@@ -173,7 +173,7 @@ class GeoclipzProvider(BaseForecastProvider):
             for hour in day['hours']:
                 time = datetime.strptime(hour['datetime'], '%H:%M:%S').time()
                 local_dt = datetime.combine(date, time)
-                local_dt = local_dt.replace(tzinfo=local_timezone)
+                #local_dt = local_dt.replace(tzinfo=local_timezone)
                 
                 # Adjust the timestamp by adding 5 hours and 30 minutes
                 adjusted_dt = local_dt + timedelta(hours=5, minutes=30)
