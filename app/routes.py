@@ -103,7 +103,7 @@ def aggregate_grid_forecast():
             for forecast in forecasts:
                 if forecast.ghi is not None:
                     estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
-                    closest_time = pd.Timestamp(forecast.timestamp)
+                    closest_time = pd.Timestamp(forecast.timestamp).floor('30min')
                     df.at[closest_time, 'total_mw'] += estimated_mw
                     
                     print(f"Substation {substation.id}, Hour: {closest_time}, Provider: {provider}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
@@ -120,10 +120,11 @@ def aggregate_grid_forecast():
                     
                     hour_start = pd.Timestamp(current_forecast.timestamp)
                     mid_point = hour_start + timedelta(minutes=30)
-                    
+
+
                     df.at[hour_start, 'total_mw'] += current_mw
                     df.at[mid_point, 'total_mw'] += (current_mw + next_mw) / 2  # Average of current and next hour
-                    
+
                     print(f"Substation {substation.id}, df at hour start: {df.at[hour_start, 'total_mw']}, df at mid point: {df.at[mid_point, 'total_mw']}, Hour start: {hour_start}, Hour mid: {mid_point}, Provider: {provider}, GHI: {current_forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {current_mw}")
            
     # Store the original 30-minute data
