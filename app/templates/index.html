@@ -54,78 +54,8 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
 
-LP
-fetch('/api/ghi_comparison')
-    .then(response => response.json())
-    .then(data => {
-        var series = [];
-        var xAxis = [];
-        // Find the earliest and latest timestamps across all providers
-        let earliestTime = new Date('9999-12-31T23:59:59Z');
-        let latestTime = new Date('1970-01-01T00:00:00Z');
-
-        for (const locationData of Object.values(data)) {
-            const firstTime = new Date(locationData.timestamps[0]);
-            const lastTime = new Date(locationData.timestamps[locationData.timestamps.length - 1]);
-            if (firstTime < earliestTime) earliestTime = firstTime;
-            if (lastTime > latestTime) latestTime = lastTime;
-        }
-        // Create a full time range with 30-minute intervals
-        let fullTimeRange = [];
-        let currentTime = new Date(earliestTime);
-        while (currentTime <= latestTime) {
-            fullTimeRange.push(new Date(currentTime));
-            currentTime.setMinutes(currentTime.getMinutes() + 30);
-        }
-        for (const [locationId, locationData] of Object.entries(data)) {
-            let alignedData = new Array(fullTimeRange.length).fill(null);
-
-            locationData.timestamps.forEach((timestamp, index) => {
-                let time = new Date(timestamp);
-                let position = fullTimeRange.findIndex(t => t.getTime() === time.getTime());
-                if (position !== -1) {
-                    alignedData[position] = locationData.ghi[index];
-                }
-            });
-            series.push({
-                name: locationData.name,
-                type: 'line',
-                data: alignedData
-            });
-        }
-        xAxis = fullTimeRange.map(time => time.toLocaleString());
-        // Create the chart
-        var chart = echarts.init(document.getElementById('ghiComparisonChart'));
-        chart.setOption({
-            title: {
-                text: 'GHI Forecast Comparison'
-            },
-            tooltip: {
-                trigger: 'axis'
-            },
-            legend: {
-                data: series.map(s => s.name)
-            },
-            xAxis: {
-                type: 'category',
-                data: xAxis
-            },
-            yAxis: {
-                type: 'value',
-                name: 'GHI (W/m²)'
-            },
-            series: series
-        });
-    });
-
-this chart is working good. but Gelciplz and VisusalCrossing have 1 hour data resolution while solcast have 30min data resolution. solcast data have line graph and both Geoclipz and VisualCrossing have dot graph due to missing 30min data. so i need line graph for all data sets despite having 30min data or 1 hour data
 
 
-I understand. To achieve a line graph for all datasets, including those with 1-hour resolution, we can modify the chart configuration to use line interpolation for the datasets with fewer points. Here's an updated version of your code that should create line graphs for all datasets:
-
-javascript
-
-Copy
 fetch('/api/ghi_comparison')
     .then(response => response.json())
     .then(data => {
@@ -181,7 +111,7 @@ fetch('/api/ghi_comparison')
         var chart = echarts.init(document.getElementById('ghiComparisonChart'));
         chart.setOption({
             title: {
-                text: ''
+                text: 'GHI Forecast Comparison'
             },
             tooltip: {
                 trigger: 'axis',
@@ -213,6 +143,14 @@ fetch('/api/ghi_comparison')
             series: series
         });
     });
+
+
+
+
+
+
+
+
 
     document.addEventListener('DOMContentLoaded', function() {
     fetch('/api/aggregate_grid_forecast')
@@ -258,16 +196,14 @@ fetch('/api/ghi_comparison')
                     symbol: 'none',
                     data: data.timestamps.map((t, i) => [new Date(t), data.total_estimated_mw[i]]),
                     lineStyle: {
-                        color: 'blue',
+
                         width: 2
                     }
                 }, {
                     name: 'Actual Data Points',
                     type: 'scatter',
                     data: data.original_timestamps.map((t, i) => [new Date(t), data.original_total_estimated_mw[i]]),
-                    itemStyle: {
-                        color: 'red'
-                    },
+
                     symbolSize: 8
                 }]
             };
