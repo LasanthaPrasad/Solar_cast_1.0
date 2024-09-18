@@ -72,7 +72,7 @@ import pandas as pd
 @main.route('/api/aggregate_grid_forecast')
 def aggregate_grid_forecast():
     now = datetime.now(timezone.utc)
-    start_time = now.replace(minute=1, second=0, microsecond=0)
+    start_time = now.replace(minute=0, second=0, microsecond=0)
     end_time = start_time + timedelta(hours=23)
 
     print(f"Current UTC time: {now}")
@@ -81,7 +81,7 @@ def aggregate_grid_forecast():
 
 
     # Create a 30-minute resolution DataFrame
-    date_range = pd.date_range(start=start_time, end=end_time, freq='30T')
+    date_range = pd.date_range(start=start_time, end=end_time, freq='30min')
     df = pd.DataFrame(index=date_range, columns=['total_mw'])
     df['total_mw'] = 0.0
 
