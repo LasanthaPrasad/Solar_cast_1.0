@@ -65,14 +65,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateChart() {
         fetch('/api/multi_location_forecast')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (chart) {
                     chart.destroy();
                 }
                 createChart(data);
             })
-            .catch(error => console.error('Error fetching forecast data:', error));
+            .catch(error => {
+                console.error('Error fetching forecast data:', error);
+                // Optionally display an error message to the user
+                document.getElementById('locationComparisonChart').innerHTML = 'Error loading forecast data. Please try again later.';
+            });
     }
 
     updateChart();
