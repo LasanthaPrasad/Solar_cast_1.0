@@ -80,6 +80,7 @@ def ghi_comparison():
     # Get all forecast locations
     locations = ForecastLocation.query.all()
 
+
     data = {}
     for location in locations:
         forecasts = IrradiationForecast.query.filter(
@@ -89,7 +90,7 @@ def ghi_comparison():
         ).order_by(IrradiationForecast.timestamp).all()
 
         data[location.id] = {
-            'name': f"{location.provider_name} ({location.latitude:.2f}, {location.longitude:.2f})",
+            'name': f"({location.id}){location.provider_name} ({location.latitude:.2f}, {location.longitude:.2f})",
             'timestamps': [f.timestamp.isoformat() for f in forecasts],
             'ghi': [f.ghi for f in forecasts]
         }
