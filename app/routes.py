@@ -117,7 +117,7 @@ def multi_location_forecast():
 def aggregate_grid_forecast():
     now = datetime.now(timezone.utc)
     start_time = now.replace(minute=0, second=0, microsecond=0)
-    end_time = start_time + timedelta(hours=16)
+    end_time = start_time + timedelta(hours=24)
 
     print(f"Current UTC time: {now}")
     print(f"Fetching forecasts from {start_time} to {end_time}")
