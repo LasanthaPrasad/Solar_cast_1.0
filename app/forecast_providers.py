@@ -75,7 +75,8 @@ class SolcastProvider(BaseForecastProvider):
         return forecasts
  """
 
-from zoneinfo import ZoneInfo
+
+
 
 class VisualCrossingProvider(BaseForecastProvider):
     def fetch_forecast(self, location):
