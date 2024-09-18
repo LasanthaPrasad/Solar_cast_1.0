@@ -176,7 +176,7 @@ class GeoclipzProvider(BaseForecastProvider):
                 local_dt = local_dt.replace(tzinfo=local_timezone)
                 
                 # Adjust the timestamp by adding 5 hours and 30 minutes
-                adjusted_dt = local_dt + timedelta(hours=5, minutes=30)
+                adjusted_dt = local_dt + timedelta(hours=8, minutes=30)
                 
                 forecasts.append(IrradiationForecast(
                     timestamp=adjusted_dt,
