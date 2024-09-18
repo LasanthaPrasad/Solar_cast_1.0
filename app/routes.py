@@ -72,7 +72,7 @@ import pandas as pd
 @main.route('/api/aggregate_grid_forecast')
 def aggregate_grid_forecast():
     now = datetime.now(timezone.utc)
-    start_time = now.replace(minute=0, second=0, microsecond=0) 
+    start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=4)
     end_time = start_time + timedelta(hours=23)
 
     print(f"Current UTC time: {now}")
