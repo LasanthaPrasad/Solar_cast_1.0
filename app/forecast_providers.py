@@ -190,6 +190,7 @@ class GeoclipzProvider(BaseForecastProvider):
 
 
 
+
 """ 
     def parse_forecast(self, data):
         print("GeoClipzProvider: Parsing forecast data")
