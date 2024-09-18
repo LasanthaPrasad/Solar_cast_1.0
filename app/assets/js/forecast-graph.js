@@ -91,3 +91,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update the chart every 5 minutes
     setInterval(updateChart, 5 * 60 * 1000);
 });
+
+
