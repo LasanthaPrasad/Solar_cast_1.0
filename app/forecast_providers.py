@@ -36,6 +36,7 @@ class SolcastProvider(BaseForecastProvider):
 
 
 
+
     def parse_forecast(self, data):
         print("SolcastProvider: Parsing forecast data")
         forecasts = []
