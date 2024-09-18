@@ -100,7 +100,7 @@ fetch('/api/ghi_comparison')
                 type: 'line',
                 data: alignedData,
                 smooth: true,
-                showSymbol: false,
+                showSymbol: true,
                 connectNulls: true
             });
         }
@@ -111,7 +111,7 @@ fetch('/api/ghi_comparison')
         var chart = echarts.init(document.getElementById('ghiComparisonChart'));
         chart.setOption({
             title: {
-                text: 'GHI Forecast Comparison'
+                text: ''
             },
             tooltip: {
                 trigger: 'axis',
