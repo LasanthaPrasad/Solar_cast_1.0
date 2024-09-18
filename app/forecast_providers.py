@@ -54,6 +54,7 @@ class SolcastProvider(BaseForecastProvider):
                     cloud_opacity=forecast.get('cloud_opacity')
                 ))
 
+
         print(f"SolcastProvider: Parsed {len(forecasts)} forecast entries for the next 3 days")
         return forecasts
 
