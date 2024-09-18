@@ -25,6 +25,7 @@ def start_scheduler(app):
         replace_existing=True,
     )
     
+    
     # Run immediately when the scheduler starts
     scheduler.add_job(
         func=run_job,

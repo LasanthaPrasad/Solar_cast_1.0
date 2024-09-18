@@ -25,7 +25,7 @@ from .scheduler import init_app as init_scheduler
 
 
 
-from .scheduler import init_app as init_scheduler
+#from .scheduler import init_app as init_scheduler
 
 #db = SQLAlchemy()
 ##scheduler = BackgroundScheduler()
