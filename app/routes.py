@@ -68,6 +68,51 @@ from sqlalchemy import func
 import pandas as pd
 
 
+@main.route('/api/multi_location_forecast')
+def multi_location_forecast():
+    # Define the forecast locations you want to compare
+    forecast_locations = [1, 2, 3, 46]  # Replace with your actual location IDs
+    
+    now = datetime.now(timezone.utc)
+    start_time = now.replace(minute=0, second=0, microsecond=0)
+    end_time = start_time + timedelta(hours=23)
+
+    result = {}
+
+    for location_id in forecast_locations:
+        substation = GridSubstation.query.filter_by(forecast_location=location_id).first()
+        if not substation:
+            continue
+
+        forecasts = IrradiationForecast.query.filter(
+            IrradiationForecast.forecast_location_id == location_id,
+            IrradiationForecast.timestamp >= start_time,
+            IrradiationForecast.timestamp <= end_time
+        ).order_by(IrradiationForecast.timestamp).all()
+
+        location_data = []
+        for forecast in forecasts:
+            if forecast.ghi is not None:
+                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
+                location_data.append({
+                    'timestamp': forecast.timestamp.isoformat(),
+                    'total_estimated_mw': estimated_mw
+                })
+
+        result[f"Location {location_id}"] = location_data
+
+    return jsonify(result)
+
+
+
+
+
+
+
+
+
+
+
 
 @main.route('/api/aggregate_grid_forecast')
 def aggregate_grid_forecast():
