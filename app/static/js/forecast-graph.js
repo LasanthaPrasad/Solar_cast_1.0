@@ -1,5 +1,3 @@
-// static/js/forecast-graph.js
-
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('locationComparisonChart').getContext('2d');
     let chart;
@@ -9,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const color = `hsl(${index * 90}, 70%, 50%)`;
             return {
                 label: location,
-                data: data[location].map(point => ({ x: new Date(point.timestamp), y: point.total_estimated_mw })),
+                data: data[location].map(point => ({ x: new Date(point.timestamp), y: point.ghi })),
                 borderColor: color,
                 backgroundColor: color,
                 fill: false,
@@ -39,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     y: {
                         title: {
                             display: true,
-                            text: 'Estimated MW'
+                            text: 'GHI (W/m²)'
                         }
                     }
                 },
@@ -53,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     title: {
                         display: true,
-                        text: 'Forecast Comparison for 4 Locations'
+                        text: 'GHI Forecast Comparison for 4 Locations'
                     }
                 }
             }

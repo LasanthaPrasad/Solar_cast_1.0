@@ -71,7 +71,7 @@ import pandas as pd
 @main.route('/api/multi_location_forecast')
 def multi_location_forecast():
     # Define the forecast locations you want to compare
-    forecast_locations = [1, 2, 3, 46]  # Replace with your actual location IDs
+    forecast_location_ids = [1, 2, 3, 4]  # Replace with your actual location IDs
     
     now = datetime.now(timezone.utc)
     start_time = now.replace(minute=0, second=0, microsecond=0)
@@ -79,9 +79,9 @@ def multi_location_forecast():
 
     result = {}
 
-    for location_id in forecast_locations:
-        substation = GridSubstation.query.filter_by(forecast_location=location_id).first()
-        if not substation:
+    for location_id in forecast_location_ids:
+        location = ForecastLocation.query.get(location_id)
+        if not location:
             continue
 
         forecasts = IrradiationForecast.query.filter(
@@ -93,13 +93,12 @@ def multi_location_forecast():
         location_data = []
         for forecast in forecasts:
             if forecast.ghi is not None:
-                estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
                 location_data.append({
                     'timestamp': forecast.timestamp.isoformat(),
-                    'total_estimated_mw': estimated_mw
+                    'ghi': forecast.ghi
                 })
 
-        result[f"Location {location_id}"] = location_data
+        result[f"{location.name}"] = location_data
 
     return jsonify(result)
 
