@@ -124,7 +124,7 @@ def aggregate_grid_forecast():
                     df.at[hour_start, 'total_mw'] += current_mw
                     df.at[mid_point, 'total_mw'] += (current_mw + next_mw) / 2  # Average of current and next hour
                     
-                    print(f"Substation {substation.id}, df at hour start: {df.at[hour_start, 'total_mw']}, df at mid point: {df.at[mid_point, 'total_mw']}, Hour start: {hour_start}, Hour mid: {mid_point}, Provider: {provider}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
+                    print(f"Substation {substation.id}, df at hour start: {df.at[hour_start, 'total_mw']}, df at mid point: {df.at[mid_point, 'total_mw']}, Hour start: {hour_start}, Hour mid: {mid_point}, Provider: {provider}, GHI: {current_forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {current_mw}")
            
     # Store the original 30-minute data
     original_data = df[df['total_mw'] > 0].copy()
