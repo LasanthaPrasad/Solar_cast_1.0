@@ -1,7 +1,7 @@
 import os
 import requests
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from .models import IrradiationForecast
 from zoneinfo import ZoneInfo
 
@@ -173,18 +173,18 @@ class GeoclipzProvider(BaseForecastProvider):
                 time = datetime.strptime(hour['datetime'], '%H:%M:%S').time()
                 local_dt = datetime.combine(date, time)
                 local_dt = local_dt.replace(tzinfo=local_timezone)
-                utc_dt = local_dt.astimezone(timezone.utc)
+                
+                # Adjust the timestamp by adding 5 hours and 30 minutes
+                adjusted_dt = local_dt + timedelta(hours=5, minutes=30)
                 
                 forecasts.append(IrradiationForecast(
-                    timestamp=utc_dt,
+                    timestamp=adjusted_dt,
                     ghi=hour['solarradiation'],
                     air_temp=hour['temp'],
                     cloud_opacity=hour['cloudcover'] / 100  # Convert to 0-1 scale
                 ))
         print(f"GeoClipzProvider: Parsed {len(forecasts)} forecast entries")
         return forecasts
-
-
 
 
 
