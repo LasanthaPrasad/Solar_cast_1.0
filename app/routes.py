@@ -121,7 +121,7 @@ def aggregate_grid_forecast():
                     hour_start = pd.Timestamp(current_forecast.timestamp).floor('H')
                     mid_point = hour_start + timedelta(minutes=30)
                     
-                    df.at[hour_start, 'total_mw'] += current_mw/2
+                    df.at[hour_start, 'total_mw'] += current_mw
                     df.at[mid_point, 'total_mw'] += (current_mw + next_mw) / 2  # Average of current and next hour
                     
                     print(f"Substation {substation.id}, df at hour start: {df.at[hour_start, 'total_mw']}, df at mid point: {df.at[mid_point, 'total_mw']}, Hour start: {hour_start}, Hour mid: {mid_point}, Provider: {provider}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
