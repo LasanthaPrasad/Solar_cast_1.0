@@ -71,7 +71,7 @@ import pandas as pd
 @main.route('/api/multi_location_forecast')
 def multi_location_forecast():
     # Define the forecast locations you want to compare
-    forecast_location_ids = [1, 2, 3, 4]  # Replace with your actual location IDs
+    forecast_location_ids = [1, 2, 3, 46]  # Replace with your actual location IDs
     
     now = datetime.now(timezone.utc)
     start_time = now.replace(minute=0, second=0, microsecond=0)
