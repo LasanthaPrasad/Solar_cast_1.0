@@ -103,7 +103,7 @@ def aggregate_grid_forecast():
             for forecast in forecasts:
                 if forecast.ghi is not None:
                     estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
-                    closest_time = pd.Timestamp(forecast.timestamp).floor('30T')
+                    closest_time = pd.Timestamp(forecast.timestamp).floor('h')
                     df.at[closest_time, 'total_mw'] += estimated_mw
                     
                     print(f"Substation {substation.id}, Hour: {closest_time}, Provider: {provider}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
@@ -118,7 +118,7 @@ def aggregate_grid_forecast():
                     current_mw = (current_forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
                     next_mw = (next_forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
                     
-                    hour_start = pd.Timestamp(current_forecast.timestamp).floor('H')
+                    hour_start = pd.Timestamp(current_forecast.timestamp).floor('h')
                     mid_point = hour_start + timedelta(minutes=30)
                     
                     df.at[hour_start, 'total_mw'] += current_mw
