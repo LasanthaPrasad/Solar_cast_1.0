@@ -168,23 +168,27 @@ class GeoclipzProvider(BaseForecastProvider):
         print("GeoClipzProvider: Parsing forecast data")
         forecasts = []
         local_timezone = ZoneInfo(data['timezone'])
+        now = datetime.now(local_timezone)
+        start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_date = start_date + timedelta(days=3)
+
         for day in data['days']:
             date = datetime.strptime(day['datetime'], '%Y-%m-%d').date()
-            for hour in day['hours']:
-                time = datetime.strptime(hour['datetime'], '%H:%M:%S').time()
-                local_dt = datetime.combine(date, time)
-                local_dt = local_dt.replace(tzinfo=local_timezone)
-                
-                # Adjust the timestamp by adding 5 hours and 30 minutes
-                adjusted_dt = local_dt + timedelta(hours=8, minutes=30)
-                
-                forecasts.append(IrradiationForecast(
-                    timestamp=adjusted_dt,
-                    ghi=hour['solarradiation'],
-                    air_temp=hour['temp'],
-                    cloud_opacity=hour['cloudcover'] / 100  # Convert to 0-1 scale
-                ))
-        print(f"GeoClipzProvider: Parsed {len(forecasts)} forecast entries")
+            if date >= start_date.date() and date < end_date.date():
+                for hour in day['hours']:
+                    time = datetime.strptime(hour['datetime'], '%H:%M:%S').time()
+                    local_dt = datetime.combine(date, time)
+                    local_dt = local_dt.replace(tzinfo=local_timezone)
+                    
+                    if start_date <= local_dt < end_date:
+                        forecasts.append(IrradiationForecast(
+                            timestamp=local_dt,
+                            ghi=hour['solarradiation'],
+                            air_temp=hour['temp'],
+                            cloud_opacity=hour['cloudcover'] / 100  # Convert to 0-1 scale
+                        ))
+
+        print(f"GeoClipzProvider: Parsed {len(forecasts)} forecast entries for the next 3 days")
         return forecasts
 
 
