@@ -30,7 +30,7 @@ class SolcastProvider(BaseForecastProvider):
             'hours': 72  # 3 days
         }
         response = requests.get(url, params=params)
-        print(f"SolcastProvider: API response status code: {response.status_code}")
+        print(f"SolcastProvider: API response status code: {response}")
         response.raise_for_status()
         return response.json()
 
@@ -66,7 +66,7 @@ class VisualCrossingProvider(BaseForecastProvider):
             'contentType': 'json'
         }
         response = requests.get(url, params=params)
-        print(f"VisualCrossingProvider: API response status code: {response.status_code}")
+        print(f"VisualCrossingProvider: API response status code: {response}")
         response.raise_for_status()
         return response.json()
 
@@ -107,7 +107,7 @@ class GeoclipzProvider(BaseForecastProvider):
             'contentType': 'json'
         }
         response = requests.get(url, params=params)
-        print(f"GeoClipzProvider: API response status code: {response.status_code}")
+        print(f"GeoClipzProvider: API response status code: {response}")
         response.raise_for_status()
         return response.json()
 
