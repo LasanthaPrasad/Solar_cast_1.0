@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from .models import IrradiationForecast
 from zoneinfo import ZoneInfo
-from zoneinfo import ZoneInfo
+
 
 
 class BaseForecastProvider(ABC):
@@ -34,7 +34,32 @@ class SolcastProvider(BaseForecastProvider):
         response.raise_for_status()
         return response.json()
 
+
+
     def parse_forecast(self, data):
+        print("SolcastProvider: Parsing forecast data")
+        forecasts = []
+        for forecast in data['forecasts']:
+            # Convert to datetime and adjust to start of the hour
+            timestamp = datetime.fromisoformat(forecast['period_end'].replace('Z', '+00:00'))
+            timestamp = timestamp.replace(minute=0, second=0, microsecond=0)
+            
+            forecasts.append(IrradiationForecast(
+                timestamp=timestamp,
+                ghi=forecast['ghi'],
+                dni=forecast['dni'],
+                dhi=forecast['dhi'],
+                air_temp=forecast.get('air_temp'),
+                cloud_opacity=forecast.get('cloud_opacity')
+            ))
+        print(f"SolcastProvider: Parsed {len(forecasts)} forecast entries")
+        return forecasts
+
+
+
+
+
+"""     def parse_forecast(self, data):
         print("SolcastProvider: Parsing forecast data")
         forecasts = []
         for forecast in data['forecasts']:
@@ -48,7 +73,7 @@ class SolcastProvider(BaseForecastProvider):
             ))
         print(f"SolcastProvider: Parsed {len(forecasts)} forecast entries")
         return forecasts
-
+ """
 
 from zoneinfo import ZoneInfo
 
