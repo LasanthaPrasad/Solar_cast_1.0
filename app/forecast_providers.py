@@ -34,9 +34,30 @@ class SolcastProvider(BaseForecastProvider):
         response.raise_for_status()
         return response.json()
 
+    def parse_forecast(self, data):
+        print("SolcastProvider: Parsing forecast data")
+        forecasts = []
+        local_timezone = ZoneInfo("UTC")  # Solcast provides data in UTC
+        now = datetime.now(local_timezone)
+        start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_date = start_date + timedelta(days=3)
 
+        for forecast in data['forecasts']:
+            timestamp = datetime.fromisoformat(forecast['period_end'].replace('Z', '+00:00'))
+            if start_date <= timestamp < end_date:
+                forecasts.append(IrradiationForecast(
+                    timestamp=timestamp,
+                    ghi=forecast['ghi'],
+                    dni=forecast['dni'],
+                    dhi=forecast['dhi'],
+                    air_temp=forecast.get('air_temp'),
+                    cloud_opacity=forecast.get('cloud_opacity')
+                ))
 
+        print(f"SolcastProvider: Parsed {len(forecasts)} forecast entries for the next 3 days")
+        return forecasts
 
+""" 
     def parse_forecast(self, data):
         print("SolcastProvider: Parsing forecast data")
         forecasts = []
@@ -56,7 +77,7 @@ class SolcastProvider(BaseForecastProvider):
         print(f"SolcastProvider: Parsed {len(forecasts)} forecast entries")
         return forecasts
 
-
+ """
 
 
 
