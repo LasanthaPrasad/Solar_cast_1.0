@@ -75,12 +75,18 @@ def aggregate_grid_forecast():
     start_time = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=1)
     end_time = start_time + timedelta(hours=23)
 
+    print(f"Current UTC time: {now}")
+    print(f"Fetching forecasts from {start_time} to {end_time}")
+
+
+
     # Create a 30-minute resolution DataFrame
     date_range = pd.date_range(start=start_time, end=end_time, freq='30T')
     df = pd.DataFrame(index=date_range, columns=['total_mw'])
     df['total_mw'] = 0.0
 
     substations = GridSubstation.query.all()
+    print(f"Found {len(substations)} substations")
 
     for substation in substations:
         forecasts = IrradiationForecast.query.filter(
@@ -88,6 +94,8 @@ def aggregate_grid_forecast():
             IrradiationForecast.timestamp >= start_time,
             IrradiationForecast.timestamp <= end_time
         ).order_by(IrradiationForecast.timestamp).all()
+
+        print(f"Found {len(forecasts)} forecasts for substation {substation.id}")
 
         provider = substation.forecast_location_rel.provider_name.lower()
 
@@ -97,6 +105,10 @@ def aggregate_grid_forecast():
                     estimated_mw = (forecast.ghi / 150) * float(substation.installed_solar_capacity) * 0.15
                     closest_time = pd.Timestamp(forecast.timestamp).floor('30T')
                     df.at[closest_time, 'total_mw'] += estimated_mw
+                    
+                    print(f"Substation {substation.id}, Hour: {closest_time}, Provider: {provider}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
+           
+
         elif provider in ['geoclipz', 'visualcrossing']:
             for i in range(len(forecasts) - 1):  # Stop at the second-to-last forecast
                 current_forecast = forecasts[i]
@@ -109,9 +121,11 @@ def aggregate_grid_forecast():
                     hour_start = pd.Timestamp(current_forecast.timestamp).floor('H')
                     mid_point = hour_start + timedelta(minutes=30)
                     
-                    df.at[hour_start, 'total_mw'] += current_mw/4
-                    df.at[mid_point, 'total_mw'] += (current_mw + next_mw) / 4  # Average of current and next hour
-
+                    df.at[hour_start, 'total_mw'] += current_mw/2
+                    df.at[mid_point, 'total_mw'] += (current_mw + next_mw) / 2  # Average of current and next hour
+                    
+                    print(f"Substation {substation.id}, df at hour start: {df.at[hour_start, 'total_mw']}, df at mid point: {df.at[mid_point, 'total_mw']}, Hour start: {hour_start}, Hour mid: {mid_point}, Provider: {provider}, GHI: {forecast.ghi}, Capacity: {substation.installed_solar_capacity}, Estimated MW: {estimated_mw}")
+           
     # Store the original 30-minute data
     original_data = df[df['total_mw'] > 0].copy()
 
