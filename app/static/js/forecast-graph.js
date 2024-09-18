@@ -1,8 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('locationComparisonChart').getContext('2d');
     let chart;
 
     function createChart(data) {
+        const ctx = document.getElementById('locationComparisonChart');
+        if (!ctx) {
+            console.error('Cannot find canvas element');
+            return;
+        }
+
         const datasets = Object.keys(data).map((location, index) => {
             const color = `hsl(${index * 90}, 70%, 50%)`;
             return {
