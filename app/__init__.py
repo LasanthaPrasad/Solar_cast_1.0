@@ -38,6 +38,7 @@ from .scheduler import init_app as init_scheduler
 
 
 
+
 def create_app():
     """     app = Flask(__name__) """
     app = Flask(__name__, static_folder='assets', static_url_path='/assets')
