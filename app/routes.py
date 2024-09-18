@@ -120,6 +120,7 @@ def aggregate_grid_forecast():
                         df.at[first_hour_start, 'total_mw'] += first_mw * 0.5  # Assume half of the :30 value
 
 
+
             for i in range(len(forecasts) - 1):
                 current_forecast = forecasts[i]
                 next_forecast = forecasts[i + 1]
