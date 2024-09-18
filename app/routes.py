@@ -71,15 +71,14 @@ import pandas as pd
 
 
 
+
+
 @main.route('/api/ghi_comparison')
 def ghi_comparison():
-    # Get the current time and the end time (24 hours from now)
     now = datetime.now(timezone.utc)
     end_time = now + timedelta(hours=24)
 
-    # Get all forecast locations
     locations = ForecastLocation.query.all()
-
 
     data = {}
     for location in locations:
@@ -96,9 +95,6 @@ def ghi_comparison():
         }
 
     return jsonify(data)
-
-
-
 
 
 

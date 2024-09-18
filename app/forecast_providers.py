@@ -1,7 +1,7 @@
 import os
 import requests
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from .models import IrradiationForecast
 from zoneinfo import ZoneInfo
 
@@ -42,7 +42,7 @@ class SolcastProvider(BaseForecastProvider):
         for forecast in data['forecasts']:
             # Convert to datetime and adjust to start of the hour
             timestamp = datetime.fromisoformat(forecast['period_end'].replace('Z', '+00:00'))
-            timestamp = timestamp.replace(minute=0, second=0, microsecond=0)
+            #timestamp = timestamp.replace(minute=0, second=0, microsecond=0)
             
             forecasts.append(IrradiationForecast(
                 timestamp=timestamp,
@@ -100,6 +100,30 @@ class VisualCrossingProvider(BaseForecastProvider):
     def parse_forecast(self, data):
         print("VisualCrossingProvider: Parsing forecast data")
         forecasts = []
+        local_timezone = ZoneInfo(data['timezone'])
+        for day in data['days']:
+            date = datetime.strptime(day['datetime'], '%Y-%m-%d').date()
+            for hour in day['hours']:
+                time = datetime.strptime(hour['datetime'], '%H:%M:%S').time()
+                local_dt = datetime.combine(date, time)
+                local_dt = local_dt.replace(tzinfo=local_timezone)
+                utc_dt = local_dt.astimezone(timezone.utc)
+                
+                forecasts.append(IrradiationForecast(
+                    timestamp=utc_dt,
+                    ghi=hour['solarradiation'],
+                    air_temp=hour['temp'],
+                    cloud_opacity=hour['cloudcover'] / 100  # Convert to 0-1 scale
+                ))
+        print(f"VisualCrossingProvider: Parsed {len(forecasts)} forecast entries")
+        return forecasts
+
+
+
+
+"""     def parse_forecast(self, data):
+        print("VisualCrossingProvider: Parsing forecast data")
+        forecasts = []
         timezone = ZoneInfo(data['timezone'])
         for day in data['days']:
             date = datetime.strptime(day['datetime'], '%Y-%m-%d').date()
@@ -116,7 +140,7 @@ class VisualCrossingProvider(BaseForecastProvider):
                     cloud_opacity=hour['cloudcover'] / 100  # Convert to 0-1 scale
                 ))
         print(f"VisualCrossingProvider: Parsed {len(forecasts)} forecast entries")
-        return forecasts
+        return forecasts """
 
 
 class GeoclipzProvider(BaseForecastProvider):
@@ -142,6 +166,33 @@ class GeoclipzProvider(BaseForecastProvider):
     def parse_forecast(self, data):
         print("GeoClipzProvider: Parsing forecast data")
         forecasts = []
+        local_timezone = ZoneInfo(data['timezone'])
+        for day in data['days']:
+            date = datetime.strptime(day['datetime'], '%Y-%m-%d').date()
+            for hour in day['hours']:
+                time = datetime.strptime(hour['datetime'], '%H:%M:%S').time()
+                local_dt = datetime.combine(date, time)
+                local_dt = local_dt.replace(tzinfo=local_timezone)
+                utc_dt = local_dt.astimezone(timezone.utc)
+                
+                forecasts.append(IrradiationForecast(
+                    timestamp=utc_dt,
+                    ghi=hour['solarradiation'],
+                    air_temp=hour['temp'],
+                    cloud_opacity=hour['cloudcover'] / 100  # Convert to 0-1 scale
+                ))
+        print(f"GeoClipzProvider: Parsed {len(forecasts)} forecast entries")
+        return forecasts
+
+
+
+
+
+
+""" 
+    def parse_forecast(self, data):
+        print("GeoClipzProvider: Parsing forecast data")
+        forecasts = []
         timezone = ZoneInfo(data['timezone'])
         for day in data['days']:
             date = datetime.strptime(day['datetime'], '%Y-%m-%d').date()
@@ -158,4 +209,4 @@ class GeoclipzProvider(BaseForecastProvider):
                     cloud_opacity=hour['cloudcover'] / 100  # Convert to 0-1 scale
                 ))
         print(f"GeoClipzProvider: Parsed {len(forecasts)} forecast entries")
-        return forecasts
+        return forecasts """
