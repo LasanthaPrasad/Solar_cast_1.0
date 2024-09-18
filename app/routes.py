@@ -68,42 +68,33 @@ from sqlalchemy import func
 import pandas as pd
 
 
-@main.route('/api/multi_location_forecast')
-def multi_location_forecast():
-    # Define the forecast locations you want to compare
-    forecast_location_ids = [1, 46]  # Replace with your actual location IDs
-    
+
+
+
+@main.route('/api/ghi_comparison')
+def ghi_comparison():
+    # Get the current time and the end time (24 hours from now)
     now = datetime.now(timezone.utc)
-    start_time = now
-    end_time = start_time + timedelta(hours=23)
+    end_time = now + timedelta(hours=24)
 
-    result = {}
+    # Get all forecast locations
+    locations = ForecastLocation.query.all()
 
-    for location_id in forecast_location_ids:
-        location = ForecastLocation.query.get(location_id)
-        if not location:
-            continue
-
+    data = {}
+    for location in locations:
         forecasts = IrradiationForecast.query.filter(
-            IrradiationForecast.forecast_location_id == location_id,
-            IrradiationForecast.timestamp >= start_time,
+            IrradiationForecast.forecast_location_id == location.id,
+            IrradiationForecast.timestamp >= now,
             IrradiationForecast.timestamp <= end_time
         ).order_by(IrradiationForecast.timestamp).all()
 
-        location_data = []
-        for forecast in forecasts:
-            if forecast.ghi is not None:
-                location_data.append({
-                    'timestamp': forecast.timestamp.isoformat(),
-                    'ghi': forecast.ghi
-                })
+        data[location.id] = {
+            'name': f"{location.provider_name} ({location.latitude:.2f}, {location.longitude:.2f})",
+            'timestamps': [f.timestamp.isoformat() for f in forecasts],
+            'ghi': [f.ghi for f in forecasts]
+        }
 
-        result[f"{location.name}"] = location_data
-
-    return jsonify(result)
-
-
-
+    return jsonify(data)
 
 
 

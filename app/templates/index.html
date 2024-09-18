@@ -36,8 +36,8 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">GHI Forecast Comparison for 4 Locations</h5>
-                <canvas id="locationComparisonChart" width="400" height="200"></canvas>
+                <h5 class="card-title">GHI Forecast Comparison</h5>
+                <div id="ghiComparisonChart" style="width:100%; height:400px;"></div>
             </div>
         </div>
     </div>
@@ -49,12 +49,56 @@
 
 {% block extra_js %}
 
-<script src="{{ url_for('static', filename='js/forecast-graph.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
 
+    // Initialize the GHI comparison chart
+    var ghiChart = echarts.init(document.getElementById('ghiComparisonChart'));
 
+    // Fetch GHI comparison data and update the chart
+    fetch('/api/ghi_comparison')
+        .then(response => response.json())
+        .then(data => {
+            var series = [];
+            var xAxis = [];
+
+            for (const [locationId, locationData] of Object.entries(data)) {
+                series.push({
+                    name: locationData.name,
+                    type: 'line',
+                    data: locationData.ghi
+                });
+
+                if (xAxis.length === 0) {
+                    xAxis = locationData.timestamps.map(timestamp => {
+                        return new Date(timestamp).toLocaleString();
+                    });
+                }
+            }
+
+            ghiChart.setOption({
+                title: {
+                    text: 'GHI Forecast Comparison'
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: series.map(s => s.name)
+                },
+                xAxis: {
+                    type: 'category',
+                    data: xAxis
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'GHI (W/m²)'
+                },
+                series: series
+            });
+        });
 
 
 
