@@ -80,6 +80,7 @@ def aggregate_grid_forecast():
 
 
 
+
     # Create a 30-minute resolution DataFrame
     date_range = pd.date_range(start=start_time, end=end_time, freq='30min')
     df = pd.DataFrame(index=date_range, columns=['total_mw'])
