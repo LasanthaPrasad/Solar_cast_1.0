@@ -5,7 +5,7 @@
 
 <a href="{{ url_for('main.create_grid_substation') }}" class="btn btn-primary mb-3">Create New Grid Substation</a>
 
-<table class="table table-striped">
+<table class="table">
     <thead>
         <tr>
             <th>ID</th>
@@ -32,13 +32,9 @@
             <td>{{ substation.api_status }}</td>
             <td>
                 <a href="{{ url_for('main.edit_grid_substation', id=substation.id) }}" class="btn btn-sm btn-warning">Edit</a>
-                <form action="{{ url_for('main.delete_grid_substation', id=substation.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this substation?');">Delete</button>
-                </form>
-                <form action="{{ url_for('main.generate_grid_substation_api_key', id=substation.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-sm btn-info">New API Key</button>
-                </form>
-                <button onclick="showForecast({{ substation.id }}, '{{ substation.name }}')" class="btn btn-sm btn-primary">Show Forecast</button>
+                <button class="btn btn-sm btn-danger delete-substation" data-id="{{ substation.id }}">Delete</button>
+                <button class="btn btn-sm btn-info new-api-key" data-id="{{ substation.id }}">New API Key</button>
+                <button class="btn btn-sm btn-primary show-forecast" data-id="{{ substation.id }}">Show Forecast</button>
             </td>
         </tr>
         {% endfor %}
@@ -51,10 +47,8 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h6 class="modal-title" id="forecastModalLabel">Grid Substation Aggregate Generation Forecast </h6>
-
-
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title" id="forecastModalLabel">Grid Substation Aggregate Generation Forecast</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -65,11 +59,12 @@
                     </div>
                 </div>
                 <div id="forecastChart" style="width:100%; height:400px;"></div>
-                <button id="downloadExcel" class="btn btn-success mt-3" style="display: none;">Download Excel</button>
+                <button id="downloadExcel" class="btn btn-success mt-3">Download Excel</button>
             </div>
         </div>
     </div>
 </div>
+
 
 {% endblock %}
 
