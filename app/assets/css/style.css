@@ -31,6 +31,75 @@
 
 
 
+.chart-container {
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.chart-container.fullscreen-active {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-container.fullscreen-active > div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.fullscreen-active #map {
+    height: 100vh !important;
+}
+
+:-webkit-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+:-moz-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+:-ms-fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+:fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
