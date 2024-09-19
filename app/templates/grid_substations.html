@@ -227,7 +227,9 @@ function downloadExcel() {
 // Add event listener for the download button
 document.getElementById('downloadExcel').addEventListener('click', downloadExcel);
 
-// Initialize the map when the page loads
-google.maps.event.addDomListener(window, 'load', initMap);
+/* // Initialize the map when the page loads
+google.maps.event.addDomListener(window, 'load', initMap); */
+
+document.addEventListener('DOMContentLoaded', initMap);
 </script>
 {% endblock %}
