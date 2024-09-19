@@ -32,6 +32,20 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .chart-container {
     background-color: white;
     transition: all 0.3s ease;
@@ -53,6 +67,7 @@
 .chart-container.fullscreen-active > div {
     width: 100% !important;
     height: 100% !important;
+    background-color: white;
 }
 
 .fullscreen-active #map {
@@ -62,21 +77,25 @@
 :-webkit-full-screen {
     width: 100vw !important;
     height: 100vh !important;
+    background-color: white !important;
 }
 
 :-moz-full-screen {
     width: 100vw !important;
     height: 100vh !important;
+    background-color: white !important;
 }
 
 :-ms-fullscreen {
     width: 100vw !important;
     height: 100vh !important;
+    background-color: white !important;
 }
 
 :fullscreen {
     width: 100vw !important;
     height: 100vh !important;
+    background-color: white !important;
 }
 
 
