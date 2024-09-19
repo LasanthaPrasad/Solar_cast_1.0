@@ -56,7 +56,8 @@ def create_app():
     #app.config['SECURITY_REGISTER_USER_TEMPLATE'] = 'register.html'
     app.config['SECURITY_FORGOT_PASSWORD_TEMPLATE'] = 'security/forgot_password.html'
     app.config['SECURITY_RESET_PASSWORD_TEMPLATE'] = 'security/reset_password.html'
-
+    app.config['SECURITY_POST_LOGIN_VIEW'] = 'main.index'
+    
     db.init_app(app)
 
     mail.init_app(app)
