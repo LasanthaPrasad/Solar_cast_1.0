@@ -192,10 +192,12 @@ var forecastChart = echarts.init(document.getElementById('forecastChart'));
         if (fullscreenElement) {
             fullscreenElement.classList.add('fullscreen-active');
             resizeChart(fullscreenElement.id);
+            updateChartBackground(fullscreenElement.id, 'white');
         } else {
             document.querySelectorAll('.chart-container').forEach(container => {
                 container.classList.remove('fullscreen-active');
                 resizeChart(container.id);
+                updateChartBackground(container.id, 'white');
             });
         }
     }
