@@ -15,18 +15,22 @@
 
     <div class="row mb-4">
         <div class="col-md-6 col-lg-3 mb-3">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Total Active Installed Capacity</h5>
-                    <h2 class="display-4">{{ total_capacity|round(2) }} MW</h2>
+            <div class="card shadow">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Active Installed Capacity</h5>
+                        <h2 class="display-4">{{ total_capacity|round(2) }} MW</h2>
+                    </div>
                 </div>
-            </div>
+            </div>   
         </div>
         <div class="col-md-6 col-lg-3 mb-3">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Total Real-time MW</h5>
-                    <h2 class="display-4">{{ total_mw|round(2) }} MW</h2>
+            <div class="card shadow">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Real-time MW</h5>
+                        <h2 class="display-4">{{ total_mw|round(2) }} MW</h2>
+                    </div>
                 </div>
             </div>
         </div>
