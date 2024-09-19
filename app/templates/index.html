@@ -1,6 +1,107 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+
+
+
+
+
+
+<div class="container-fluid dashboard">
+    <h1 class="mb-4">GeoClipz Dashboard</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Total Active Installed Capacity</h5>
+                    <h2 class="display-4">{{ total_capacity|round(2) }} MW</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Total Real-time MW</h5>
+                    <h2 class="display-4">{{ total_mw|round(2) }} MW</h2>
+                </div>
+            </div>
+        </div>
+        <!-- Add more summary cards here if needed -->
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Aggregated Solar Generation Forecast of All Grid Substations</h5>
+                </div>
+                <div class="card-body">
+                    <div id="forecastChart" style="width:100%; height:400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">GHI Forecast Comparison</h5>
+                </div>
+                <div class="card-body">
+                    <div id="ghiComparisonChart" style="width:100%; height:400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Geographic Overview</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="map" style="height: 600px; width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <h1>GeoClipz Dashboard</h1>
 <div class="row">
     <div class="col-md-6">

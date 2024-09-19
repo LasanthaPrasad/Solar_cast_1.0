@@ -1,4 +1,60 @@
-/* General Styles */
+.dashboard .card {
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.dashboard .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.dashboard .card-header {
+    border-bottom: none;
+    padding: 1.5rem;
+}
+
+.dashboard .card-body {
+    padding: 1.5rem;
+}
+
+.dashboard .display-4 {
+    font-weight: 600;
+}
+
+.shadow {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}/* General Styles */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
