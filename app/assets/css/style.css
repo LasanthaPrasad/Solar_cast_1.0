@@ -38,7 +38,29 @@
 
 
 
+.chart-container {
+    transition: height 0.3s ease;
+}
 
+.chart-container:-webkit-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+.chart-container:-moz-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+.chart-container:-ms-fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+.chart-container:fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+}
 
 
 
