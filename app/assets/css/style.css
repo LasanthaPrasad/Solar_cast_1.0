@@ -37,12 +37,18 @@
     transition: all 0.3s ease;
 }
 
+
 .chart-container.fullscreen-active {
-    padding: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: white;
 }
+
 
 .chart-container.fullscreen-active > div {
     width: 100% !important;
