@@ -1400,13 +1400,19 @@ def index():
                            forecast_locations=forecast_locations)
  
 
+@main.route('/')
+def index_web():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    return render_template('index_web.html')
 
+""" 
 @main.route('/')
 def index_web():
 
     
     return render_template('index_web.html')
-
+ """
 
 
 # Forecast Locations
