@@ -93,13 +93,14 @@ function initMap() {
         zoom: 8
     });
 
-    {% for substation in substations %}
+    const substations = [{% for substation in substations %}
     var marker = new google.maps.Marker({
         position: {lat: {{ substation.latitude }}, lng: {{ substation.longitude }}},
         map: map,
         title: '{{ substation.name }}'
     });
     {% endfor %}
+    ];
 
     substations.forEach(function(substation) {
         var marker = new google.maps.Marker({
