@@ -1558,7 +1558,7 @@ def calculate_substation_forecasts(substation):
         'estimated_mw': estimated_mw
     })
 
-    #print(f" return forecast  {substation_forecasts}")
+    print(f" return forecast  {substation_forecasts}")
     return substation_forecasts
 
 
